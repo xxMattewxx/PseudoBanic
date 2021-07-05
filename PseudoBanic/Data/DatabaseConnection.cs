@@ -32,6 +32,7 @@ namespace PseudoBanic.Data
                     ret.Token = Token;
                     ret.UserID = reader.GetInt32(0);
                     ret.Username = reader.GetString(1);
+                    ret.AdminLevel = reader.GetInt32(2);
                 }
             }
             return ret;

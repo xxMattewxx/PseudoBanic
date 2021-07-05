@@ -11,5 +11,6 @@ namespace PseudoBanic.Data
         public int UserID;
         public string Username;
         public string Token;
+        public int AdminLevel;
     }
 }

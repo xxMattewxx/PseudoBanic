@@ -11,7 +11,7 @@ namespace PseudoBanic.Handlers
 {
 	public class Retrieve
 	{
-		public static TaskInfo RetrieveTask(string token) {
+		public static TaskInfo RetrieveTask(UserInfo user) {
             TaskInfo ret = null;
             try
             {
@@ -26,13 +26,12 @@ namespace PseudoBanic.Handlers
                             using (var command = conn.CreateCommand())
                             {
                                 command.CommandText = "" +
-                                    "SELECT @userid := userID FROM users WHERE token = @token LIMIT 1;" +
                                     "SELECT @task_id_retrieved := task_id FROM tasks WHERE quorum_left > 0 AND " +
                                             "(SELECT COUNT(*) FROM assignments WHERE task_id = tasks.task_id AND userid = @userid) = 0 LIMIT 1; " +
                                     "INSERT INTO assignments (task_id, userid, deadline, state, output) VALUES (@task_id_retrieved, @userid, @deadline, @state, @output);" +
                                     "UPDATE tasks SET quorum_left = quorum_left - 1 WHERE task_id = @task_id_retrieved;";
 
-                                command.Parameters.AddWithValue("@token", token);
+                                command.Parameters.AddWithValue("@userid", user.UserID);
                                 command.Parameters.AddWithValue("@deadline", DateTime.Now);
                                 command.Parameters.AddWithValue("@state", 0);
                                 command.Parameters.AddWithValue("@output", null);
@@ -81,7 +80,14 @@ namespace PseudoBanic.Handlers
 				return;
 			}
 
-			TaskInfo task = RetrieveTask(request.Token);
+            UserInfo user = DatabaseConnection.GetUserInfoByToken(request.Token);
+            if (user == null)
+            {
+                writer.Write(new BaseResponse { Message = "Not authorized." }.ToJson());
+                return;
+            }
+
+            TaskInfo task = RetrieveTask(user);
             if(task == null) {
                 writer.Write(new BaseResponse { Message = "No tasks available." }.ToJson());
                 return;
