@@ -5,7 +5,7 @@ namespace PseudoBanic.Requests
 {
     class RetrieveRequest
     {
-        public string Token = null;
+        public string APIKey = null;
 
         public static RetrieveRequest FromJson(string str)
         {

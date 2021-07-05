@@ -11,6 +11,7 @@ namespace PseudoBanic.Handlers
 {
 	public class Retrieve
 	{
+        //Atomic retrieve task and create assignment in DB
 		public static TaskInfo RetrieveTask(UserInfo user) {
             TaskInfo ret = null;
             try
@@ -75,13 +76,13 @@ namespace PseudoBanic.Handlers
 		public static void ProcessContext(HttpListenerContext context, StreamWriter writer, StreamReader reader) {
 			string jsonStr = reader.ReadToEnd();
 			RetrieveRequest request = RetrieveRequest.FromJson(jsonStr);
-			if(request == null || request.Token == null) {
+			if(request == null || request.APIKey == null) {
 				writer.Write(new BaseResponse { Message = "Invalid request." }.ToJson());
 				return;
 			}
 
-            UserInfo user = DatabaseConnection.GetUserInfoByToken(request.Token);
-            if (user == null)
+            UserInfo user = DatabaseConnection.GetUserInfoByAPIKey(request.APIKey);
+            if (user == null || user.AdminLevel < AdminLevels.None)
             {
                 writer.Write(new BaseResponse { Message = "Not authorized." }.ToJson());
                 return;

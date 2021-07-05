@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,7 +11,16 @@ namespace PseudoBanic.Data
     {
         public int UserID;
         public string Username;
-        public string Token;
+        public string APIKey;
         public int AdminLevel;
+        public Int64 DiscordID;
+
+        public bool IsValidForRegister()
+        {
+            if (Username == null || Username.Length < 1 || Username.Length > 20) return false;
+            if (DiscordID == 0) return false;
+
+            return true;
+        }
     }
 }

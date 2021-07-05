@@ -10,6 +10,7 @@ namespace PseudoBanic
 		{
 			Global.Load();
 
+			api.AddAction("/register", Handlers.Register.ProcessContext);
 			api.AddAction("/retrieve", Handlers.Retrieve.ProcessContext);
 
 			api.Listen ();
