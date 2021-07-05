@@ -11,7 +11,6 @@ namespace PseudoBanic.Requests
 
         public bool IsValid()
         {
-            Console.WriteLine(JsonConvert.SerializeObject(this));
             if (APIKey == null || APIKey.Length != 32) return false;
             if (User == null || !User.IsValidForRegister()) return false;
 
