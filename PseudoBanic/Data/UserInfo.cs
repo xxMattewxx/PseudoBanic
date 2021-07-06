@@ -17,7 +17,7 @@ namespace PseudoBanic.Data
 
         public bool IsValidForRegister()
         {
-            if (Username == null || Username.Length < 1 || Username.Length > 20) return false;
+            if (Username == null || !Utils.IsValidUsername(Username)) return false;
             if (DiscordID == 0) return false;
 
             return true;

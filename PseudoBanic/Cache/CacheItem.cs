@@ -17,7 +17,8 @@ namespace PseudoBanic
             ExpiresAfter = expiresAfter;
         }
         public T Value { get; }
-        internal DateTimeOffset Created { get; } = DateTimeOffset.Now;
+        
+        public DateTimeOffset Created = DateTimeOffset.Now;
         internal TimeSpan ExpiresAfter { get; }
     }
 }

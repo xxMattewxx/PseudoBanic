@@ -42,20 +42,36 @@ namespace PseudoBanic
             });
         }
 
+        public void Refresh(TKey key)
+        {
+            lock(lockObj) {
+                if (!_cache.ContainsKey(key)) return;
+
+                var cached = _cache[key];
+                cached.Created = DateTimeOffset.Now;
+            }
+        }
+
         public void Store(TKey key, TValue value, TimeSpan expiresAfter)
         {
-            _cache[key] = new CacheItem<TValue>(value, expiresAfter);
+            lock(lockObj)
+                _cache[key] = new CacheItem<TValue>(value, expiresAfter);
         }
 
         public TValue Get(TKey key)
         {
-            if (!_cache.ContainsKey(key)) return default(TValue);
-
-            var cached = _cache[key];
-            if (DateTimeOffset.Now - cached.Created >= cached.ExpiresAfter)
+            CacheItem<TValue> cached = null;
+            lock (lockObj)
             {
-                _cache.Remove(key);
-                return default(TValue);
+                if (!_cache.ContainsKey(key)) return default(TValue);
+
+                cached = _cache[key];
+
+                if (DateTimeOffset.Now - cached.Created >= cached.ExpiresAfter)
+                {
+                    _cache.Remove(key);
+                    return default(TValue);
+                }
             }
             return cached.Value;
         }

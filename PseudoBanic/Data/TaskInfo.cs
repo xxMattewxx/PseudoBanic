@@ -10,11 +10,16 @@ namespace PseudoBanic.Data
     {
         public int ID;
         public int Status;
-        public int GroupID;
         public int QuorumLeft;
-
-        public string Name;
-        public string BinaryURL;
         public string InputData;
+        public string Consensus;
+        public TaskMeta MetaData;
+
+        public bool IsValid()
+        {
+            if (MetaData == null) return false;
+
+            return true;
+        }
     }
 }
