@@ -56,7 +56,7 @@ namespace PseudoBanic.Handlers
                             Status = reader.GetInt32(2),
                             QuorumLeft = reader.GetInt32(3),
                             InputData = reader.GetString(4),
-                            MetaData = new TaskMeta
+                            Metadata = new TaskMeta
                             {
                                 ID = reader.GetInt32(1),
                                 Name = reader.GetString(5),

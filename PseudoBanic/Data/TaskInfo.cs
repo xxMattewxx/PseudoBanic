@@ -13,11 +13,11 @@ namespace PseudoBanic.Data
         public int QuorumLeft;
         public string InputData;
         public string Consensus;
-        public TaskMeta MetaData;
+        public TaskMeta Metadata;
 
         public bool IsValid()
         {
-            if (MetaData == null) return false;
+            if (Metadata == null) return false;
 
             return true;
         }
