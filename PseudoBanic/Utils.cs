@@ -6,7 +6,7 @@ namespace PseudoBanic
 {
     class Utils
     {
-        public static string ValidCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        public static string ValidCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-";
         public static bool IsValidUsername(string username)
         {
             if (username.Length < 1 || username.Length > 20) return false;
