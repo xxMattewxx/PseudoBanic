@@ -15,6 +15,7 @@ namespace PseudoBanic
 		{
 			listener = new HttpListener ();
 			listener.Prefixes.Add ("http://+:" + port + "/");
+			Console.WriteLine("Listening on port {0}", port);
 		}
 
 		public void Listen() {

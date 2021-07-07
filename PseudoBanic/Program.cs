@@ -10,7 +10,7 @@ namespace PseudoBanic
 		{
 			int port = 189;
 
-			for(int i = 0; i < args.Length; i += 2) {
+			for(int i = 0; i < args.Length; i++) {
 				if (args[i] == "--port")
 					port = Convert.ToInt32(args[i + 1]);
             }
