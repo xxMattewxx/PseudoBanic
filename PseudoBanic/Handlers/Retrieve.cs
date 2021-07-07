@@ -68,14 +68,14 @@ namespace PseudoBanic.Handlers
                     transaction.Commit();
                 }
 
-                catch (Exception e)
+                catch (Exception)
                 {
                     try
                     {
                         transaction.Rollback();
                     }
                     catch { }
-                    Console.WriteLine("Exception: {0}", e);
+                    //Console.WriteLine("Exception: {0}", e);
                     return null;
                 }
             }

@@ -6,12 +6,10 @@ namespace PseudoBanic.Requests
 {
     class RegisterRequest
     {
-        public string APIKey = null;
         public UserInfo User = null;
 
         public bool IsValid()
         {
-            if (APIKey == null || APIKey.Length != 32) return false;
             if (User == null || !User.IsValidForRegister()) return false;
 
             return true;

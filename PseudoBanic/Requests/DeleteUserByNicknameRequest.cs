@@ -6,12 +6,10 @@ namespace PseudoBanic.Requests
 {
     class DeleteUserByNicknameRequest
     {
-        public string APIKey = null;
         public string Username = null;
 
         public bool IsValid()
         {
-            if (APIKey == null || APIKey.Length != 32) return false;
             if (Username == null || Username.Length < 1 || Username.Length > 20) return false;
 
             return true;

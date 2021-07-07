@@ -77,6 +77,8 @@ namespace PseudoBanic.Data
 
         public static UserInfo GetUserInfoByAPIKey(string APIKey, bool usecache = true)
         {
+            if (APIKey == null || APIKey.Length != 32) return null;
+
             Tuple<bool, UserInfo> cache = UserByAPIKeyCache.Get(APIKey);
             if (cache != null && cache.Item1 && usecache)
             {
@@ -211,7 +213,7 @@ namespace PseudoBanic.Data
 
                     using (var command = conn.CreateCommand())
                     {
-                        command.CommandText = "DELETE FROM users WHERE userid = @userid";
+                        command.CommandText = "DELETE FROM users WHERE userid = @userid;";
                         command.Parameters.AddWithValue("@userid", UserID);
                         command.ExecuteNonQuery();
                     }
