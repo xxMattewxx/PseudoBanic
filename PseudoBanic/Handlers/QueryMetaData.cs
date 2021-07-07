@@ -42,10 +42,11 @@ namespace PseudoBanic.Handlers
 
             context.Response.StatusCode = (int)HttpStatusCode.OK;
             writer.Write(
-                new BaseResponse
+                new QueryMetadataResponse
                 {
                     Success = true,
-                    Message = "User deleted successfully."
+                    Message = "Metadata retrieved successfully.",
+                    Metadata = meta
                 }.ToJson()
             );
             return;

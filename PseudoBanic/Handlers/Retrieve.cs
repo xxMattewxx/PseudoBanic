@@ -16,57 +16,67 @@ namespace PseudoBanic.Handlers
             TaskInfo ret = null;
             try
             {
-                using (var conn = new MySqlConnection(Global.builder.ConnectionString))
+                using MySqlConnection conn = new MySqlConnection(Global.builder.ConnectionString);
+                conn.Open();
+
+                using MySqlTransaction transaction = conn.BeginTransaction();
+
+                try
                 {
-                    conn.Open();
+                    using MySqlCommand command = conn.CreateCommand();
 
-                    using (var transaction = conn.BeginTransaction())
+                    command.Transaction = transaction;
+                    command.CommandText = "" +
+                        "SELECT @task_id_retrieved := task_id,tasks.task_metaid,task_status,quorum_left,input_data,task_name,binary_url " +
+                        "FROM tasks " +
+                        "JOIN tasks_metadata " +
+                        "ON tasks.task_metaid = tasks_metadata.task_metaid " +
+                        "WHERE quorum_left > 0 AND task_status = 1 AND " +
+                            "(SELECT COUNT(*) FROM assignments WHERE task_id = tasks.task_id AND userid = @userid) = 0 LIMIT 1;" +
+
+                        "INSERT INTO assignments (task_id, userid, deadline, state, output) " +
+                        "VALUES (@task_id_retrieved, @userid, @deadline, @state, @output);" +
+
+                        "UPDATE tasks " +
+                        "SET quorum_left = quorum_left - 1 " +
+                        "WHERE task_id = @task_id_retrieved;";
+
+                    command.Parameters.AddWithValue("@userid", user.UserID);
+                    command.Parameters.AddWithValue("@deadline", DateTime.Now.AddDays(1));
+                    command.Parameters.AddWithValue("@state", 0);
+                    command.Parameters.AddWithValue("@output", null);
+
+                    using (MySqlDataReader reader = command.ExecuteReader())
                     {
-                        try
+                        reader.Read();
+
+                        ret = new TaskInfo
                         {
-                            using (var command = conn.CreateCommand())
+                            ID = reader.GetInt32(0),
+                            Status = reader.GetInt32(2),
+                            QuorumLeft = reader.GetInt32(3),
+                            InputData = reader.GetString(4),
+                            MetaData = new TaskMeta
                             {
-                                command.CommandText = "" +
-                                    "SELECT @task_id_retrieved := task_id FROM tasks JOIN tasks_metadata ON tasks.task_metaid = tasks_metadata.task_metaid WHERE quorum_left > 0 AND task_status = 1 AND " +
-                                        "(SELECT COUNT(*) FROM assignments WHERE task_id = tasks.task_id AND userid = @userid) = 0 LIMIT 1;" +
-                                    "INSERT INTO assignments (task_id, userid, deadline, state, output) VALUES (@task_id_retrieved, @userid, @deadline, @state, @output);" +
-                                    "UPDATE tasks SET quorum_left = quorum_left - 1 WHERE task_id = @task_id_retrieved;";
-
-                                command.Parameters.AddWithValue("@userid", user.UserID);
-                                command.Parameters.AddWithValue("@deadline", DateTime.Now.AddDays(1));
-                                command.Parameters.AddWithValue("@state", 0);
-                                command.Parameters.AddWithValue("@output", null);
-                                command.Transaction = transaction;
-
-                                var reader = command.ExecuteReader();
-                                reader.Read();
-
-                                ret = new TaskInfo
-                                {
-                                    ID = reader.GetInt32(0),
-                                    Status = reader.GetInt32(2),
-                                    QuorumLeft = reader.GetInt32(3),
-                                    InputData = reader.GetString(4),
-                                    MetaData = new TaskMeta
-                                    {
-                                        ID = reader.GetInt32(1),
-                                        Name = reader.GetString(7),
-                                        BinaryURL = reader.GetString(8)
-                                    }
-                                };
+                                ID = reader.GetInt32(1),
+                                Name = reader.GetString(5),
+                                BinaryURL = reader.GetString(6)
                             }
-                            transaction.Commit();
-                        }
-                        catch (Exception)
-                        {
-                            try
-                            {
-                                transaction.Rollback();
-                            }
-                            catch {}
-                            return null;
-                        }
+                        };
                     }
+
+                    transaction.Commit();
+                }
+
+                catch (Exception e)
+                {
+                    try
+                    {
+                        transaction.Rollback();
+                    }
+                    catch { }
+                    Console.WriteLine("Exception: {0}", e);
+                    return null;
                 }
             }
             catch(Exception) {}
