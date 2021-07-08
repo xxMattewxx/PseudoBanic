@@ -3,24 +3,27 @@ using Newtonsoft.Json;
 
 namespace PseudoBanic.Requests
 {
-    class RetrieveRequest
+    class SubmitRequest
     {
         public string APIKey = null;
+        public int TaskID = -1;
+        public string Results = null;
 
         public bool IsValid()
         {
             if (APIKey == null || APIKey.Length != 32) return false;
+            if (TaskID < 1) return false;
 
             return true;
         }
 
-        public static RetrieveRequest FromJson(string str)
+        public static SubmitRequest FromJson(string str)
         {
-            RetrieveRequest ret = null;
+            SubmitRequest ret = null;
 
             try
             {
-                ret = JsonConvert.DeserializeObject<RetrieveRequest>(str);
+                ret = JsonConvert.DeserializeObject<SubmitRequest>(str);
             }
             catch (Exception) { }
 

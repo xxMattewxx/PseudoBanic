@@ -293,5 +293,34 @@ namespace PseudoBanic.Data
             }
             return true;
         }
+
+        //TODO: RETURN ERROR CODES FROM DB
+        //-> IS USER OWNER OF THE TASK?
+        //-> WAS THE DEADLINE ACHIEVED?
+        //-> DOES THAT TASK EVEN EXIST?
+        public static bool AttributeResult(int UserID, int TaskID, string Results)
+        {
+            try
+            {
+                using (var conn = new MySqlConnection(Global.builder.ConnectionString))
+                {
+                    conn.Open();
+
+                    using (var command = conn.CreateCommand())
+                    {
+                        command.CommandText = "CALL UpdateResults(@UserID, @TaskID, @Results);";
+                        command.Parameters.AddWithValue("@UserID", UserID);
+                        command.Parameters.AddWithValue("@TaskID", TaskID);
+                        command.Parameters.AddWithValue("@Results", Results);
+
+                        return command.ExecuteNonQuery() > 0;
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
     }
 }

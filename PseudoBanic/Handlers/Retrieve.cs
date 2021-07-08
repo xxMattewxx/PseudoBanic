@@ -53,7 +53,7 @@ namespace PseudoBanic.Handlers
 		public static void ProcessContext(HttpListenerContext context, StreamWriter writer, StreamReader reader) {
 			string jsonStr = reader.ReadToEnd();
 			RetrieveRequest request = RetrieveRequest.FromJson(jsonStr);
-			if(request == null || request.APIKey == null)
+			if(request == null || !request.IsValid())
             {
                 context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
                 writer.Write(new BaseResponse { Message = "Invalid request." }.ToJson());
