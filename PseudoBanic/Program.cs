@@ -19,6 +19,7 @@ namespace PseudoBanic
 
 			api = new APIServer(port);
 
+			api.AddAction("/submit", Handlers.Submit.ProcessContext);
 			api.AddAction("/addmeta", Handlers.AddTaskMetadata.ProcessContext);
 			api.AddAction("/addtask", Handlers.AddTask.ProcessContext);
 			api.AddAction("/register", Handlers.Register.ProcessContext);
