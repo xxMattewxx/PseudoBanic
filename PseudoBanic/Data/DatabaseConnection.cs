@@ -281,7 +281,7 @@ namespace PseudoBanic.Data
 
                     using (var command = conn.CreateCommand())
                     {
-                        command.CommandText = "DELETE FROM users WHERE userid = @userid;";
+                        command.CommandText = "DELETE FROM users WHERE userID = @userid;";
                         command.Parameters.AddWithValue("@userid", UserID);
                         command.ExecuteNonQuery();
                     }

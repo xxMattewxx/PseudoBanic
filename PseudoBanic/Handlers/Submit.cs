@@ -40,7 +40,7 @@ namespace PseudoBanic.Handlers
                 new BaseResponse
                 {
                     Success = true,
-                    Message = "Task retrieved.",
+                    Message = "Result submitted.",
                 }.ToJson()
             );
             return;
