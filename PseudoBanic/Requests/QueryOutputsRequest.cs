@@ -4,24 +4,24 @@ using Newtonsoft.Json;
 using PseudoBanic.Data;
 namespace PseudoBanic.Requests
 {
-    class RegisterRequest
+    class QueryOutputsRequest
     {
-        public UserInfo User = null;
+        public int TaskID = -1;
 
         public bool IsValid()
         {
-            if (User == null || !User.IsValidForRegister()) return false;
+            if (TaskID < 1) return false;
 
             return true;
         }
 
-        public static RegisterRequest FromJson(string str)
+        public static QueryOutputsRequest FromJson(string str)
         {
-            RegisterRequest ret = null;
+            QueryOutputsRequest ret = null;
 
             try
             {
-                ret = JsonConvert.DeserializeObject<RegisterRequest>(str);
+                ret = JsonConvert.DeserializeObject<QueryOutputsRequest>(str);
             }
             catch (Exception) { }
 

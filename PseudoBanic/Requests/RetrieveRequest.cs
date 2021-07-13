@@ -7,6 +7,13 @@ namespace PseudoBanic.Requests
     {
         public string APIKey = null;
 
+        public bool IsValid()
+        {
+            if (APIKey == null || APIKey.Length != 32) return false;
+
+            return true;
+        }
+
         public static RetrieveRequest FromJson(string str)
         {
             RetrieveRequest ret = null;

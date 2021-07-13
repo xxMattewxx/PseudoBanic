@@ -19,64 +19,30 @@ namespace PseudoBanic.Handlers
                 using MySqlConnection conn = new MySqlConnection(Global.builder.ConnectionString);
                 conn.Open();
 
-                using MySqlTransaction transaction = conn.BeginTransaction();
+                using MySqlCommand command = conn.CreateCommand();
+                command.CommandText = "CALL RetrieveAtomic(@userid);";
+                command.Parameters.AddWithValue("@userid", user.UserID);
 
-                try
+                using (MySqlDataReader reader = command.ExecuteReader())
                 {
-                    using MySqlCommand command = conn.CreateCommand();
+                    if (!reader.HasRows)
+                        return null;
 
-                    command.Transaction = transaction;
-                    command.CommandText = "" +
-                        "SELECT @task_id_retrieved := task_id,tasks.task_metaid,task_status,quorum_left,input_data,task_name,binary_url " +
-                        "FROM tasks " +
-                        "JOIN tasks_metadata " +
-                        "ON tasks.task_metaid = tasks_metadata.task_metaid " +
-                        "WHERE quorum_left > 0 AND task_status = 1 AND " +
-                            "(SELECT COUNT(*) FROM assignments WHERE task_id = tasks.task_id AND userid = @userid) = 0 LIMIT 1;" +
+                    reader.Read();
 
-                        "INSERT INTO assignments (task_id, userid, deadline, state, output) " +
-                        "VALUES (@task_id_retrieved, @userid, @deadline, @state, @output);" +
-
-                        "UPDATE tasks " +
-                        "SET quorum_left = quorum_left - 1 " +
-                        "WHERE task_id = @task_id_retrieved;";
-
-                    command.Parameters.AddWithValue("@userid", user.UserID);
-                    command.Parameters.AddWithValue("@deadline", DateTime.Now.AddDays(1));
-                    command.Parameters.AddWithValue("@state", 0);
-                    command.Parameters.AddWithValue("@output", null);
-
-                    using (MySqlDataReader reader = command.ExecuteReader())
+                    ret = new TaskInfo
                     {
-                        reader.Read();
-
-                        ret = new TaskInfo
+                        ID = reader.GetInt32(0),
+                        Status = reader.GetInt32(2),
+                        QuorumLeft = reader.GetInt32(3),
+                        InputData = reader.GetString(4),
+                        Metadata = new TaskMeta
                         {
-                            ID = reader.GetInt32(0),
-                            Status = reader.GetInt32(2),
-                            QuorumLeft = reader.GetInt32(3),
-                            InputData = reader.GetString(4),
-                            Metadata = new TaskMeta
-                            {
-                                ID = reader.GetInt32(1),
-                                Name = reader.GetString(5),
-                                BinaryURL = reader.GetString(6)
-                            }
-                        };
-                    }
-
-                    transaction.Commit();
-                }
-
-                catch (Exception e)
-                {
-                    try
-                    {
-                        transaction.Rollback();
-                    }
-                    catch { }
-                    Console.WriteLine("Exception: {0}", e);
-                    return null;
+                            ID = reader.GetInt32(1),
+                            Name = reader.GetString(5),
+                            BinaryURL = reader.GetString(6)
+                        }
+                    };
                 }
             }
             catch(Exception) {}
@@ -87,7 +53,7 @@ namespace PseudoBanic.Handlers
 		public static void ProcessContext(HttpListenerContext context, StreamWriter writer, StreamReader reader) {
 			string jsonStr = reader.ReadToEnd();
 			RetrieveRequest request = RetrieveRequest.FromJson(jsonStr);
-			if(request == null || request.APIKey == null)
+			if(request == null || !request.IsValid())
             {
                 context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
                 writer.Write(new BaseResponse { Message = "Invalid request." }.ToJson());

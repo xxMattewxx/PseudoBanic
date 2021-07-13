@@ -6,12 +6,10 @@ namespace PseudoBanic.Requests
 {
     class QueryMetadataRequest
     {
-        public string APIKey = null;
         public int ID = -1;
 
         public bool IsValid()
         {
-            if (APIKey == null || APIKey.Length != 32) return false;
             if (ID < 1) return false;
 
             return true;

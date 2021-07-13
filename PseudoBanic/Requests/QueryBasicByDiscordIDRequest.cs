@@ -4,24 +4,24 @@ using Newtonsoft.Json;
 using PseudoBanic.Data;
 namespace PseudoBanic.Requests
 {
-    class RegisterRequest
+    class QueryBasicByDiscordIDRequest
     {
-        public UserInfo User = null;
+        public Int64 DiscordID = Int64.MinValue;
 
         public bool IsValid()
         {
-            if (User == null || !User.IsValidForRegister()) return false;
+            if (DiscordID == Int64.MinValue) return false;
 
             return true;
         }
 
-        public static RegisterRequest FromJson(string str)
+        public static QueryBasicByDiscordIDRequest FromJson(string str)
         {
-            RegisterRequest ret = null;
+            QueryBasicByDiscordIDRequest ret = null;
 
             try
             {
-                ret = JsonConvert.DeserializeObject<RegisterRequest>(str);
+                ret = JsonConvert.DeserializeObject<QueryBasicByDiscordIDRequest>(str);
             }
             catch (Exception) { }
 

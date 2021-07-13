@@ -11,10 +11,11 @@ namespace PseudoBanic
 		private Dictionary<string, Action<HttpListenerContext, StreamWriter, StreamReader>> handlers = new Dictionary<string, Action<HttpListenerContext, StreamWriter, StreamReader>>();
 		private HttpListener listener;
 
-		public APIServer ()
+		public APIServer (int port)
 		{
 			listener = new HttpListener ();
-			listener.Prefixes.Add ("http://+:189/");
+			listener.Prefixes.Add ("http://+:" + port + "/");
+			Console.WriteLine("Listening on port {0}", port);
 		}
 
 		public void Listen() {

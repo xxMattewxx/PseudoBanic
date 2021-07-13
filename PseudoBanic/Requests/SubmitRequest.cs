@@ -1,27 +1,29 @@
 ﻿using System;
 using Newtonsoft.Json;
 
-using PseudoBanic.Data;
 namespace PseudoBanic.Requests
 {
-    class RegisterRequest
+    class SubmitRequest
     {
-        public UserInfo User = null;
+        public string APIKey = null;
+        public int TaskID = -1;
+        public string Results = null;
 
         public bool IsValid()
         {
-            if (User == null || !User.IsValidForRegister()) return false;
+            if (APIKey == null || APIKey.Length != 32) return false;
+            if (TaskID < 1) return false;
 
             return true;
         }
 
-        public static RegisterRequest FromJson(string str)
+        public static SubmitRequest FromJson(string str)
         {
-            RegisterRequest ret = null;
+            SubmitRequest ret = null;
 
             try
             {
-                ret = JsonConvert.DeserializeObject<RegisterRequest>(str);
+                ret = JsonConvert.DeserializeObject<SubmitRequest>(str);
             }
             catch (Exception) { }
 

@@ -1,27 +1,29 @@
 ﻿using System;
 using Newtonsoft.Json;
-
 using PseudoBanic.Data;
+
+#pragma warning disable 0649
+
 namespace PseudoBanic.Requests
 {
-    class RegisterRequest
+    class AddTaskMetadataRequest
     {
-        public UserInfo User = null;
+        public TaskMeta Metadata;
 
         public bool IsValid()
         {
-            if (User == null || !User.IsValidForRegister()) return false;
+            if (Metadata == null || !Metadata.IsValid()) return false;
 
             return true;
         }
 
-        public static RegisterRequest FromJson(string str)
+        public static AddTaskMetadataRequest FromJson(string str)
         {
-            RegisterRequest ret = null;
+            AddTaskMetadataRequest ret = null;
 
             try
             {
-                ret = JsonConvert.DeserializeObject<RegisterRequest>(str);
+                ret = JsonConvert.DeserializeObject<AddTaskMetadataRequest>(str);
             }
             catch (Exception) { }
 
