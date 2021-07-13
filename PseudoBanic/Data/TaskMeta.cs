@@ -12,6 +12,7 @@ namespace PseudoBanic.Data
         public int ID;
         public string Name;
         public string BinaryURL;
+        public bool PassByFile;
 
         public bool IsValid()
         {

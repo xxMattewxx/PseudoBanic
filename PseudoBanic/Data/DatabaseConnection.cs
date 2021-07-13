@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -196,6 +197,67 @@ namespace PseudoBanic.Data
             }
         }
 
+        public static List<String> GetOutputsByTaskID(int taskid)
+        {
+            using (var conn = new MySqlConnection(Global.builder.ConnectionString))
+            {
+                conn.Open();
+
+                using (var command = conn.CreateCommand())
+                {
+                    command.CommandText = "SELECT output FROM assignments WHERE task_id = @taskid";
+                    command.Parameters.AddWithValue("@taskid", taskid);
+
+                    MySqlDataReader reader = command.ExecuteReader();
+                    reader.Read();
+
+                    if (!reader.HasRows)
+                        return null;
+
+                    List<string> ret = new List<string>();
+                    do
+                    {
+                        ret.Add(reader.GetString(0));
+                    }
+                    while (reader.Read());
+
+                    return ret;
+                }
+            }
+        }
+
+        public static void StreamOutputsByAppID(int metaid, StreamWriter writer)
+        {
+            using (var conn = new MySqlConnection(Global.builder.ConnectionString))
+            {
+                conn.Open();
+
+                using (var command = conn.CreateCommand())
+                {
+                    command.CommandText = "" +
+                        "SELECT output FROM assignments JOIN tasks ON assignments.task_id = tasks.task_id " +
+                        "WHERE output != '' AND tasks.task_metaid = @metaid;";
+                    command.Parameters.AddWithValue("@metaid", metaid);
+
+                    MySqlDataReader reader = command.ExecuteReader();
+                    reader.Read();
+
+                    if (!reader.HasRows)
+                        return;
+
+                    List<string> ret = new List<string>();
+                    do
+                    {
+                        writer.Write(reader.GetString(0));
+                    }
+                    while (reader.Read());
+
+                    writer.Flush();
+                    return;
+                }
+            }
+        }
+
         public static bool AddUserInfo(UserInfo user)
         {
             try
@@ -317,8 +379,9 @@ namespace PseudoBanic.Data
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Console.WriteLine(e);
                 return false;
             }
         }

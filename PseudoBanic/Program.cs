@@ -25,7 +25,10 @@ namespace PseudoBanic
 			api.AddAction("/register", Handlers.Register.ProcessContext);
 			api.AddAction("/retrieve", Handlers.Retrieve.ProcessContext);
 			api.AddAction("/setlevel", Handlers.ChangeUserLevel.ProcessContext);
-			api.AddAction("/querymeta/byid", Handlers.QueryMetadata.ProcessContext);
+			api.AddAction("/query/meta/byid", Handlers.QueryMetadata.ProcessContext);
+			api.AddAction("/query/outputs/bytaskid", Handlers.QueryOutput.ProcessContext);
+			api.AddAction("/stream/outputs/byappid", Handlers.StreamOutputsByAppID.ProcessContext);
+			api.AddAction("/query/basic/bydiscordid", Handlers.QueryBasicByDiscordID.ProcessContext);
 			api.AddAction("/vaporise/user/bynickname", Handlers.DeleteUserByNickname.ProcessContext);
 			api.AddAction("/vaporise/user/bydiscordid", Handlers.DeleteUserByDiscordID.ProcessContext);
 
