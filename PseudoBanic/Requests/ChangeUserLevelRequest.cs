@@ -8,13 +8,11 @@ namespace PseudoBanic.Requests
 {
     class ChangeUserLevelRequest
     {
-        public string APIKey;
         public string Username;
         public int Level;
 
         public bool IsValid()
         {
-            if (APIKey == null || APIKey.Length != 32) return false;
             if (Level < AdminLevels.Banned || Level > AdminLevels.Developer) return false;
             if (Username == null || !Utils.IsValidUsername(Username)) return false;
 

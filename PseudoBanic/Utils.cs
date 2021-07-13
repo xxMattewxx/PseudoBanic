@@ -9,6 +9,7 @@ namespace PseudoBanic
         public static string ValidCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-";
         public static bool IsValidUsername(string username)
         {
+            if (username == null || username.StartsWith("_")) return false;
             if (username.Length < 1 || username.Length > 20) return false;
 
             for (int i = 0; i < username.Length; i++)

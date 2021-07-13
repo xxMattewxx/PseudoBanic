@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,6 +13,7 @@ namespace PseudoBanic.Data
     {
         public static Cache<string, Tuple<bool, UserInfo>> UserByNicknameCache = new Cache<string, Tuple<bool, UserInfo>>();
         public static Cache<string, Tuple<bool, UserInfo>> UserByAPIKeyCache = new Cache<string, Tuple<bool, UserInfo>>();
+        public static Cache<Int64, Tuple<bool, UserInfo>> UserByDiscordIDCache = new Cache<Int64, Tuple<bool, UserInfo>>();
         public static Cache<int, Tuple<bool, TaskMeta>> MetadataByIDCache = new Cache<int, Tuple<bool, TaskMeta>>();
 
         public static bool ChangeUserLevel(int UserID, int Level)
@@ -70,6 +72,7 @@ namespace PseudoBanic.Data
                     ret.DiscordID = reader.GetInt64(3);
 
                     UserByNicknameCache.Store(Username, Tuple.Create(true, ret), TimeSpan.FromMinutes(5));
+                    UserByDiscordIDCache.Store(ret.DiscordID, Tuple.Create(true, ret), TimeSpan.FromMinutes(5));
                     return ret;
                 }
             }
@@ -77,6 +80,8 @@ namespace PseudoBanic.Data
 
         public static UserInfo GetUserInfoByAPIKey(string APIKey, bool usecache = true)
         {
+            if (APIKey == null || APIKey.Length != 32) return null;
+
             Tuple<bool, UserInfo> cache = UserByAPIKeyCache.Get(APIKey);
             if (cache != null && cache.Item1 && usecache)
             {
@@ -108,6 +113,48 @@ namespace PseudoBanic.Data
                     ret.DiscordID = reader.GetInt64(3);
 
                     UserByAPIKeyCache.Store(APIKey, Tuple.Create(true, ret), TimeSpan.FromMinutes(5));
+                    UserByDiscordIDCache.Store(ret.DiscordID, Tuple.Create(true, ret), TimeSpan.FromMinutes(5));
+                    UserByNicknameCache.Store(ret.Username, Tuple.Create(true, ret), TimeSpan.FromMinutes(5));
+                    return ret;
+                }
+            }
+        }
+
+        public static UserInfo GetUserInfoByDiscordID(Int64 discordid, bool usecache = true)
+        {
+            Tuple<bool, UserInfo> cache = UserByDiscordIDCache.Get(discordid);
+            if (cache != null && cache.Item1 && usecache)
+            {
+                return cache.Item2;
+            }
+
+            using (var conn = new MySqlConnection(Global.builder.ConnectionString))
+            {
+                conn.Open();
+
+                using (var command = conn.CreateCommand())
+                {
+                    command.CommandText = "SELECT token,userid,username,admin_level,discord_id FROM users WHERE discord_id = @discordid";
+                    command.Parameters.AddWithValue("@discordid", discordid);
+
+                    MySqlDataReader reader = command.ExecuteReader();
+                    reader.Read();
+
+                    if (!reader.HasRows)
+                    {
+                        UserByDiscordIDCache.Store(discordid, Tuple.Create<bool, UserInfo>(true, null), TimeSpan.FromSeconds(30));
+                        return null;
+                    }
+
+                    UserInfo ret = new UserInfo();
+                    ret.APIKey = reader.GetString(0);
+                    ret.UserID = reader.GetInt32(1);
+                    ret.Username = reader.GetString(2);
+                    ret.AdminLevel = reader.GetInt32(3);
+                    ret.DiscordID = discordid;
+
+                    UserByDiscordIDCache.Store(discordid, Tuple.Create(true, ret), TimeSpan.FromMinutes(5));
+                    UserByNicknameCache.Store(ret.Username, Tuple.Create(true, ret), TimeSpan.FromMinutes(5));
                     return ret;
                 }
             }
@@ -146,6 +193,67 @@ namespace PseudoBanic.Data
 
                     MetadataByIDCache.Store(id, Tuple.Create(true, ret), TimeSpan.FromHours(2));
                     return ret;
+                }
+            }
+        }
+
+        public static List<String> GetOutputsByTaskID(int taskid)
+        {
+            using (var conn = new MySqlConnection(Global.builder.ConnectionString))
+            {
+                conn.Open();
+
+                using (var command = conn.CreateCommand())
+                {
+                    command.CommandText = "SELECT output FROM assignments WHERE task_id = @taskid";
+                    command.Parameters.AddWithValue("@taskid", taskid);
+
+                    MySqlDataReader reader = command.ExecuteReader();
+                    reader.Read();
+
+                    if (!reader.HasRows)
+                        return null;
+
+                    List<string> ret = new List<string>();
+                    do
+                    {
+                        ret.Add(reader.GetString(0));
+                    }
+                    while (reader.Read());
+
+                    return ret;
+                }
+            }
+        }
+
+        public static void StreamOutputsByAppID(int metaid, StreamWriter writer)
+        {
+            using (var conn = new MySqlConnection(Global.builder.ConnectionString))
+            {
+                conn.Open();
+
+                using (var command = conn.CreateCommand())
+                {
+                    command.CommandText = "" +
+                        "SELECT output FROM assignments JOIN tasks ON assignments.task_id = tasks.task_id " +
+                        "WHERE output != '' AND tasks.task_metaid = @metaid;";
+                    command.Parameters.AddWithValue("@metaid", metaid);
+
+                    MySqlDataReader reader = command.ExecuteReader();
+                    reader.Read();
+
+                    if (!reader.HasRows)
+                        return;
+
+                    List<string> ret = new List<string>();
+                    do
+                    {
+                        writer.Write(reader.GetString(0));
+                    }
+                    while (reader.Read());
+
+                    writer.Flush();
+                    return;
                 }
             }
         }
@@ -201,6 +309,30 @@ namespace PseudoBanic.Data
             return true;
         }
 
+        public static long AddTaskMetadata(TaskMeta metadata)
+        {
+            try
+            {
+                using (var conn = new MySqlConnection(Global.builder.ConnectionString))
+                {
+                    conn.Open();
+
+                    using (var command = conn.CreateCommand())
+                    {
+                        command.CommandText = "INSERT INTO tasks_metadata (task_name, binary_url) VALUES (@task_name, @binary_url);";
+                        command.Parameters.AddWithValue("@task_name", metadata.Name);
+                        command.Parameters.AddWithValue("@binary_url", metadata.BinaryURL);
+                        command.ExecuteNonQuery();
+                        return command.LastInsertedId;
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                return -1;
+            }
+        }
+
         public static bool DeleteUserByID(int UserID)
         {
             try
@@ -211,7 +343,7 @@ namespace PseudoBanic.Data
 
                     using (var command = conn.CreateCommand())
                     {
-                        command.CommandText = "DELETE FROM users WHERE userid = @userid";
+                        command.CommandText = "DELETE FROM users WHERE userID = @userid;";
                         command.Parameters.AddWithValue("@userid", UserID);
                         command.ExecuteNonQuery();
                     }
@@ -222,6 +354,36 @@ namespace PseudoBanic.Data
                 return false;
             }
             return true;
+        }
+
+        //TODO: RETURN ERROR CODES FROM DB
+        //-> IS USER OWNER OF THE TASK?
+        //-> WAS THE DEADLINE ACHIEVED?
+        //-> DOES THAT TASK EVEN EXIST?
+        public static bool AttributeResult(int UserID, int TaskID, string Results)
+        {
+            try
+            {
+                using (var conn = new MySqlConnection(Global.builder.ConnectionString))
+                {
+                    conn.Open();
+
+                    using (var command = conn.CreateCommand())
+                    {
+                        command.CommandText = "CALL UpdateResults(@UserID, @TaskID, @Results);";
+                        command.Parameters.AddWithValue("@UserID", UserID);
+                        command.Parameters.AddWithValue("@TaskID", TaskID);
+                        command.Parameters.AddWithValue("@Results", Results);
+
+                        return command.ExecuteNonQuery() > 0;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return false;
+            }
         }
     }
 }

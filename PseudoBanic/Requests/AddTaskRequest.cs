@@ -8,12 +8,10 @@ namespace PseudoBanic.Requests
 {
     class AddTaskRequest
     {
-        public string APIKey;
         public TaskInfo Task;
 
         public bool IsValid()
         {
-            if (APIKey == null || APIKey.Length != 32) return false;
             if (Task == null || !Task.IsValid()) return false;
 
             return true;

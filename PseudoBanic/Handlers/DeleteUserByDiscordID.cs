@@ -11,21 +11,21 @@ using PseudoBanic.Responses;
 
 namespace PseudoBanic.Handlers
 {
-    public class AddTask
+    public class DeleteUserByDiscordID
     {
         public static void ProcessContext(HttpListenerContext context, StreamWriter writer, StreamReader reader)
         {
             string jsonStr = reader.ReadToEnd();
             string APIKey = context.Request.Headers.Get("Authorization");
 
-            if(APIKey == null || APIKey.Length != 32)
+            if (APIKey == null || APIKey.Length != 32)
             {
                 context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
                 writer.Write(new BaseResponse { Message = "Missing or invalid API key." }.ToJson());
                 return;
             }
 
-            AddTaskRequest request = AddTaskRequest.FromJson(jsonStr);
+            DeleteUserByDiscordIDRequest request = DeleteUserByDiscordIDRequest.FromJson(jsonStr);
             if (request == null || !request.IsValid())
             {
                 context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
@@ -41,10 +41,18 @@ namespace PseudoBanic.Handlers
                 return;
             }
 
-            if (!DatabaseConnection.AddTask(request.Task))
+            UserInfo target = DatabaseConnection.GetUserInfoByDiscordID(request.DiscordID);
+            if (target == null)
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                writer.Write(new BaseResponse { Message = "User not found." }.ToJson());
+                return;
+            }
+
+            if (!DatabaseConnection.DeleteUserByID(target.UserID))
             {
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                writer.Write(new BaseResponse { Message = "Failure adding task to DB." }.ToJson());
+                writer.Write(new BaseResponse { Message = "Failure deleting user from DB." }.ToJson());
                 return;
             }
 
@@ -53,7 +61,7 @@ namespace PseudoBanic.Handlers
                 new BaseResponse
                 {
                     Success = true,
-                    Message = "Task added to DB."
+                    Message = "User deleted successfully."
                 }.ToJson()
             );
             return;

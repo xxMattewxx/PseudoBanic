@@ -16,6 +16,15 @@ namespace PseudoBanic.Handlers
         public static void ProcessContext(HttpListenerContext context, StreamWriter writer, StreamReader reader)
         {
             string jsonStr = reader.ReadToEnd();
+            string APIKey = context.Request.Headers.Get("Authorization");
+
+            if (APIKey == null || APIKey.Length != 32)
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                writer.Write(new BaseResponse { Message = "Missing or invalid API key." }.ToJson());
+                return;
+            }
+
             ChangeUserLevelRequest request = ChangeUserLevelRequest.FromJson(jsonStr);
             if (request == null || !request.IsValid()) {
                 context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
@@ -23,7 +32,7 @@ namespace PseudoBanic.Handlers
                 return;
             }
 
-            UserInfo user = DatabaseConnection.GetUserInfoByAPIKey(request.APIKey);
+            UserInfo user = DatabaseConnection.GetUserInfoByAPIKey(APIKey);
             if (user == null || user.AdminLevel < AdminLevels.Manager) {
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                 writer.Write(new BaseResponse { Message = "Not authorized." }.ToJson());

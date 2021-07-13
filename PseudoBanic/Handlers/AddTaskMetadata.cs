@@ -11,7 +11,7 @@ using PseudoBanic.Responses;
 
 namespace PseudoBanic.Handlers
 {
-    public class AddTask
+    public class AddTaskMetadata
     {
         public static void ProcessContext(HttpListenerContext context, StreamWriter writer, StreamReader reader)
         {
@@ -25,7 +25,7 @@ namespace PseudoBanic.Handlers
                 return;
             }
 
-            AddTaskRequest request = AddTaskRequest.FromJson(jsonStr);
+            AddTaskMetadataRequest request = AddTaskMetadataRequest.FromJson(jsonStr);
             if (request == null || !request.IsValid())
             {
                 context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
@@ -34,26 +34,28 @@ namespace PseudoBanic.Handlers
             }
 
             UserInfo user = DatabaseConnection.GetUserInfoByAPIKey(APIKey);
-            if (user == null || user.AdminLevel < AdminLevels.Administrator)
+            if (user == null || user.AdminLevel < AdminLevels.Manager)
             {
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                 writer.Write(new BaseResponse { Message = "Not authorized." }.ToJson());
                 return;
             }
 
-            if (!DatabaseConnection.AddTask(request.Task))
+            long metadataID = DatabaseConnection.AddTaskMetadata(request.Metadata);
+            if (metadataID == -1)
             {
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                writer.Write(new BaseResponse { Message = "Failure adding task to DB." }.ToJson());
+                writer.Write(new BaseResponse { Message = "Failure adding task metadata to DB." }.ToJson());
                 return;
             }
 
             context.Response.StatusCode = (int)HttpStatusCode.OK;
             writer.Write(
-                new BaseResponse
+                new AddTaskMetadataResponse
                 {
                     Success = true,
-                    Message = "Task added to DB."
+                    Message = "Task metadata added to DB.",
+                    MetadataID = metadataID
                 }.ToJson()
             );
             return;
