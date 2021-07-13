@@ -43,11 +43,19 @@ namespace PseudoBanic.Handlers
                 writer.Write(new BaseResponse { Message = "Not authorized." }.ToJson());
                 return;
             }
-            
+
             UserInfo aux = DatabaseConnection.GetUserInfoByUsername(request.User.Username);
-            if (aux != null) {
+            if (aux != null)
+            {
                 context.Response.StatusCode = (int)HttpStatusCode.Conflict;
-                writer.Write(new BaseResponse { Message = "User already exists." }.ToJson());
+                writer.Write(new BaseResponse { Message = "Username already exists." }.ToJson());
+                return;
+            }
+
+            UserInfo discordUser = DatabaseConnection.GetUserInfoByDiscordID(request.User.DiscordID);
+            if (discordUser != null) {
+                context.Response.StatusCode = (int)HttpStatusCode.Conflict;
+                writer.Write(new BaseResponse { Message = "Discord ID already in DB." }.ToJson());
                 return;
             }
 
