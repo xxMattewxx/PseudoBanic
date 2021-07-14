@@ -196,14 +196,8 @@ namespace PseudoBanic.Data
                 }
             }
         }
-        public static TotalProgress QueryTotalProgress(int id, bool usecache = true)
+        public static TotalProgress QueryTotalProgress(int id, bool usecache = false)
         {
-            Tuple<int, TotalProgress> cache = ProjectProgressCache.Get(id);
-            if (cache != null && cache.Item1 > 0 && usecache)
-            {
-                return cache.Item2;
-            }
-
             using (var conn = new MySqlConnection(Global.builder.ConnectionString))
             {
                 conn.Open();
@@ -218,7 +212,6 @@ namespace PseudoBanic.Data
 
                     if (!reader.HasRows)
                     {
-                        ProjectProgressCache.Store(id, Tuple.Create<int, TotalProgress>(0, null), TimeSpan.FromMinutes(0));
                         return null;
                     }
                     TotalProgress ret = new TotalProgress();
@@ -232,11 +225,9 @@ namespace PseudoBanic.Data
                     reader.Read();
                     if (!reader.HasRows)
                     {
-                        ProjectProgressCache.Store(id, Tuple.Create<int, TotalProgress>(0, null), TimeSpan.FromMinutes(0));
                         return null;
                     }
                     ret.TotalExisting = reader.GetInt32(0);
-                    ProjectProgressCache.Store(id, Tuple.Create(id, ret), TimeSpan.FromHours(0));
                     return ret;
                 }
             }
