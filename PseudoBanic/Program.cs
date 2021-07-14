@@ -31,7 +31,7 @@ namespace PseudoBanic
 			api.AddAction("/query/basic/bydiscordid", Handlers.QueryBasicByDiscordID.ProcessContext);
 			api.AddAction("/vaporise/user/bynickname", Handlers.DeleteUserByNickname.ProcessContext);
 			api.AddAction("/vaporise/user/bydiscordid", Handlers.DeleteUserByDiscordID.ProcessContext);
-			api.AddAction("/progress", Handlers.QueryTotalProgressByTaskID.ProcessContext);
+			api.AddAction("/progress", Handlers.QueryTotalProgressByMetaID.ProcessContext);
 			api.Listen ();
 		}
 	}

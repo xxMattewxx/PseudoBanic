@@ -7,24 +7,24 @@ using System.Threading.Tasks;
 
 namespace PseudoBanic.Requests
 {
-    class QueryTotalProgressByTaskIDRequest
+    class QueryTotalProgressByMetaIDRequest
     {
-        public int TaskID = -1;
+        public int ID = -1;
 
         public bool IsValid()
         {
-            if (TaskID < 1) return false;
+            if (ID < 1) return false;
 
             return true;
         }
 
-        public static QueryTotalProgressByTaskIDRequest FromJson(string str)
+        public static QueryTotalProgressByMetaIDRequest FromJson(string str)
         {
-            QueryTotalProgressByTaskIDRequest ret = null;
+            QueryTotalProgressByMetaIDRequest ret = null;
 
             try
             {
-                ret = JsonConvert.DeserializeObject<QueryTotalProgressByTaskIDRequest>(str);
+                ret = JsonConvert.DeserializeObject<QueryTotalProgressByMetaIDRequest>(str);
             }
             catch (Exception) { }
 

@@ -11,7 +11,7 @@ using PseudoBanic.Responses;
 using System.Collections.Generic;
 namespace PseudoBanic.Handlers
 {
-    class QueryTotalProgressByTaskID
+    class QueryTotalProgressByMetaID
     {
         public static void ProcessContext(HttpListenerContext context, StreamWriter writer, StreamReader reader)
         {
@@ -25,7 +25,7 @@ namespace PseudoBanic.Handlers
                 return;
             }
 
-            QueryTotalProgressByTaskIDRequest request = QueryTotalProgressByTaskIDRequest.FromJson(jsonStr);
+            QueryTotalProgressByMetaIDRequest request = QueryTotalProgressByMetaIDRequest.FromJson(jsonStr);
             if (request == null || !request.IsValid())
             {
                 context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
@@ -41,7 +41,7 @@ namespace PseudoBanic.Handlers
                 return;
             }
 
-            TotalProgress ret = DatabaseConnection.QueryTotalProgress(request.TaskID, false);
+            TotalProgress ret = DatabaseConnection.QueryTotalProgress(request.ID, false);
             if (ret == null)
             {
                 context.Response.StatusCode = (int)HttpStatusCode.NotFound;
