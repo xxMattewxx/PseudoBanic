@@ -15,7 +15,7 @@ namespace PseudoBanic.Data
         public static Cache<string, Tuple<bool, UserInfo>> UserByAPIKeyCache = new Cache<string, Tuple<bool, UserInfo>>();
         public static Cache<Int64, Tuple<bool, UserInfo>> UserByDiscordIDCache = new Cache<Int64, Tuple<bool, UserInfo>>();
         public static Cache<int, Tuple<bool, TaskMeta>> MetadataByIDCache = new Cache<int, Tuple<bool, TaskMeta>>();
-
+        public static Cache<int, Tuple<int, TotalProgress>> ProjectProgressCache = new Cache<int, Tuple<int, TotalProgress>>();
         public static bool ChangeUserLevel(int UserID, int Level)
         {
             try
@@ -196,7 +196,42 @@ namespace PseudoBanic.Data
                 }
             }
         }
+        public static TotalProgress QueryTotalProgress(int id, bool usecache = false)
+        {
+            using (var conn = new MySqlConnection(Global.builder.ConnectionString))
+            {
+                conn.Open();
 
+                using (var command = conn.CreateCommand())
+                {
+                    command.CommandText = "SELECT tasks_metadata.`task_name`, count(*) FROM tasks_metadata join tasks on tasks_metadata.`task_metaid` = tasks.`task_metaid` WHERE tasks.`task_metaid` = @task_metaid and quorum_left = 0";
+                    command.Parameters.AddWithValue("@task_metaid", id);
+
+                    MySqlDataReader reader = command.ExecuteReader();
+                    reader.Read();
+
+                    if (!reader.HasRows)
+                    {
+                        return null;
+                    }
+                    TotalProgress ret = new TotalProgress();
+                    ret.ID = id;
+                    ret.Name = reader.GetString(0);
+                    ret.TotalDone = reader.GetInt32(1);
+                    reader.Close();
+                    command.CommandText = "SELECT count(*) from tasks where task_metaid = @task_metaid";
+
+                    reader = command.ExecuteReader();
+                    reader.Read();
+                    if (!reader.HasRows)
+                    {
+                        return null;
+                    }
+                    ret.TotalExisting = reader.GetInt32(0);
+                    return ret;
+                }
+            }
+        }
         public static List<String> GetOutputsByTaskID(int taskid)
         {
             using (var conn = new MySqlConnection(Global.builder.ConnectionString))
