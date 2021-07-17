@@ -263,34 +263,27 @@ namespace PseudoBanic.Data
 
         public static void StreamOutputsByAppID(int metaid, StreamWriter writer)
         {
-            using (var conn = new MySqlConnection(Global.builder.ConnectionString))
+            using MySqlConnection conn = new MySqlConnection(Global.builder.ConnectionString);
+            conn.Open();
+
+            using MySqlCommand command = conn.CreateCommand();
+            command.CommandText = "SELECT consensus FROM tasks WHERE tasks.task_metaid = @metaid AND consensus != '';";
+            command.Parameters.AddWithValue("@metaid", metaid);
+
+            using MySqlDataReader reader = command.ExecuteReader();
+            reader.Read();
+
+            if (!reader.HasRows)
+                return;
+
+            do
             {
-                conn.Open();
-
-                using (var command = conn.CreateCommand())
-                {
-                    command.CommandText = "" +
-                        "SELECT output FROM assignments JOIN tasks ON assignments.task_id = tasks.task_id " +
-                        "WHERE output != '' AND tasks.task_metaid = @metaid;";
-                    command.Parameters.AddWithValue("@metaid", metaid);
-
-                    MySqlDataReader reader = command.ExecuteReader();
-                    reader.Read();
-
-                    if (!reader.HasRows)
-                        return;
-
-                    List<string> ret = new List<string>();
-                    do
-                    {
-                        writer.Write(reader.GetString(0));
-                    }
-                    while (reader.Read());
-
-                    writer.Flush();
-                    return;
-                }
+                writer.Write(reader.GetString(0));
             }
+            while (reader.Read());
+
+            writer.Flush();
+            return;
         }
 
         public static bool AddUserInfo(UserInfo user)

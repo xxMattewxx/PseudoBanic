@@ -42,6 +42,14 @@ namespace PseudoBanic.Handlers
                 return;
             }
 
+            TaskMeta meta = DatabaseConnection.GetTaskMetaByID(request.MetaID);
+            if(meta == null)
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                writer.Write(new BaseResponse { Message = "Metadata not found." }.ToJson());
+                return;
+            }
+
             DatabaseConnection.StreamOutputsByAppID(request.MetaID, writer);
             return;
         }
