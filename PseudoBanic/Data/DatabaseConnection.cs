@@ -1,12 +1,9 @@
-﻿using System;
+﻿using MySqlConnector;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MySqlConnector;
-using Newtonsoft.Json;
 
+//TODO: REFACTOR CLASS INTO MULTIPLE FILES FOR READABILITY PURPOSES
 namespace PseudoBanic.Data
 {
     public class DatabaseConnection
@@ -16,6 +13,7 @@ namespace PseudoBanic.Data
         public static Cache<Int64, Tuple<bool, UserInfo>> UserByDiscordIDCache = new Cache<Int64, Tuple<bool, UserInfo>>();
         public static Cache<int, Tuple<bool, TaskMeta>> MetadataByIDCache = new Cache<int, Tuple<bool, TaskMeta>>();
         public static Cache<int, Tuple<int, TotalProgress>> ProjectProgressCache = new Cache<int, Tuple<int, TotalProgress>>();
+
         public static bool ChangeUserLevel(int UserID, int Level)
         {
             try
@@ -60,7 +58,8 @@ namespace PseudoBanic.Data
                     MySqlDataReader reader = command.ExecuteReader();
                     reader.Read();
 
-                    if (!reader.HasRows) {
+                    if (!reader.HasRows)
+                    {
                         UserByNicknameCache.Store(Username, Tuple.Create<bool, UserInfo>(true, null), TimeSpan.FromSeconds(30));
                         return null;
                     }
@@ -73,6 +72,33 @@ namespace PseudoBanic.Data
 
                     UserByNicknameCache.Store(Username, Tuple.Create(true, ret), TimeSpan.FromMinutes(5));
                     UserByDiscordIDCache.Store(ret.DiscordID, Tuple.Create(true, ret), TimeSpan.FromMinutes(5));
+                    return ret;
+                }
+            }
+        }
+
+        public static ClientVersion GetLatestClient()
+        {
+            using (var conn = new MySqlConnection(Global.builder.ConnectionString))
+            {
+                conn.Open();
+
+                using (var command = conn.CreateCommand())
+                {
+                    command.CommandText = "SELECT version_number,codename,binary_url,file_hash FROM clients ORDER BY version_number DESC LIMIT 1;";
+
+                    MySqlDataReader reader = command.ExecuteReader();
+                    reader.Read();
+
+                    if (!reader.HasRows)
+                        return null;
+
+                    ClientVersion ret = new ClientVersion();
+                    ret.VersionNumber = reader.GetInt32(0);
+                    ret.Codename = reader.GetString(1);
+                    ret.BinaryURL = reader.GetString(2);
+                    ret.FileHash = reader.GetString(3);
+
                     return ret;
                 }
             }
@@ -100,7 +126,8 @@ namespace PseudoBanic.Data
                     MySqlDataReader reader = command.ExecuteReader();
                     reader.Read();
 
-                    if (!reader.HasRows) {
+                    if (!reader.HasRows)
+                    {
                         UserByAPIKeyCache.Store(APIKey, Tuple.Create<bool, UserInfo>(true, null), TimeSpan.FromSeconds(30));
                         return null;
                     }
@@ -214,6 +241,7 @@ namespace PseudoBanic.Data
                     {
                         return null;
                     }
+
                     TotalProgress ret = new TotalProgress();
                     ret.ID = id;
                     ret.Name = reader.GetString(0);
@@ -330,8 +358,9 @@ namespace PseudoBanic.Data
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Console.WriteLine(e);
                 return false;
             }
             return true;
@@ -411,6 +440,33 @@ namespace PseudoBanic.Data
             {
                 Console.WriteLine(e);
                 return false;
+            }
+        }
+
+        public static long AddVersion(ClientVersion version)
+        {
+            try
+            {
+                using (var conn = new MySqlConnection(Global.builder.ConnectionString))
+                {
+                    conn.Open();
+
+                    using (var command = conn.CreateCommand())
+                    {
+                        command.CommandText = "INSERT INTO clients (codename, binary_url, file_hash) VALUES (@Codename, @BinaryURL, @FileHash);";
+                        command.Parameters.AddWithValue("@Codename", version.Codename);
+                        command.Parameters.AddWithValue("@BinaryURL", version.BinaryURL);
+                        command.Parameters.AddWithValue("@FileHash", version.FileHash);
+
+                        command.ExecuteNonQuery();
+                        return command.LastInsertedId;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return -1;
             }
         }
     }

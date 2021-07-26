@@ -3,8 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace PseudoBanic
@@ -31,10 +29,11 @@ namespace PseudoBanic
             }
         }
 
-        public Cache() {
+        public Cache()
+        {
             Task.Run(async () =>
             {
-                while(true)
+                while (true)
                 {
                     Cleanup();
                     await Task.Delay(1000);
@@ -44,7 +43,8 @@ namespace PseudoBanic
 
         public void Refresh(TKey key)
         {
-            lock(lockObj) {
+            lock (lockObj)
+            {
                 if (!_cache.ContainsKey(key)) return;
 
                 var cached = _cache[key];
@@ -54,7 +54,7 @@ namespace PseudoBanic
 
         public void Store(TKey key, TValue value, TimeSpan expiresAfter)
         {
-            lock(lockObj)
+            lock (lockObj)
                 _cache[key] = new CacheItem<TValue>(value, expiresAfter);
         }
 

@@ -1,7 +1,6 @@
-﻿using System;
-using System.IO;
-using MySqlConnector;
+﻿using MySqlConnector;
 using Newtonsoft.Json;
+using System.IO;
 
 namespace PseudoBanic
 {

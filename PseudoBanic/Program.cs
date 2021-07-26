@@ -1,38 +1,47 @@
 ﻿using System;
-using System.Net;
+
+using PseudoBanic.Handlers.Accounts;
+using PseudoBanic.Handlers.Tasks;
+using PseudoBanic.Handlers.Versions;
 
 namespace PseudoBanic
 {
-	class MainClass
-	{
-		public static APIServer api;
-		public static void Main (string[] args)
-		{
-			int port = 189;
+    class MainClass
+    {
+        public static APIServer api;
+        public static void Main(string[] args)
+        {
+            int port = 1337;
 
-			for(int i = 0; i < args.Length; i++) {
-				if (args[i] == "--port")
-					port = Convert.ToInt32(args[i + 1]);
+            for (int i = 0; i < args.Length; i++)
+            {
+                if (args[i] == "--port")
+                    port = Convert.ToInt32(args[i + 1]);
             }
 
-			Global.Load();
+            Global.Load();
 
-			api = new APIServer(port);
+            api = new APIServer(port);
 
-			api.AddAction("/submit", Handlers.Submit.ProcessContext);
-			api.AddAction("/addmeta", Handlers.AddTaskMetadata.ProcessContext);
-			api.AddAction("/addtask", Handlers.AddTask.ProcessContext);
-			api.AddAction("/register", Handlers.Register.ProcessContext);
-			api.AddAction("/retrieve", Handlers.Retrieve.ProcessContext);
-			api.AddAction("/setlevel", Handlers.ChangeUserLevel.ProcessContext);
-			api.AddAction("/query/meta/byid", Handlers.QueryMetadata.ProcessContext);
-			api.AddAction("/query/outputs/bytaskid", Handlers.QueryOutput.ProcessContext);
-			api.AddAction("/stream/outputs/byappid", Handlers.StreamOutputsByAppID.ProcessContext);
-			api.AddAction("/query/basic/bydiscordid", Handlers.QueryBasicByDiscordID.ProcessContext);
-			api.AddAction("/vaporise/user/bynickname", Handlers.DeleteUserByNickname.ProcessContext);
-			api.AddAction("/vaporise/user/bydiscordid", Handlers.DeleteUserByDiscordID.ProcessContext);
-			api.AddAction("/progress", Handlers.QueryTotalProgressByMetaID.ProcessContext);
-			api.Listen ();
-		}
-	}
+            api.AddAction("/accounts/register", Register.ProcessContext);
+            api.AddAction("/accounts/setlevel", ChangeUserLevel.ProcessContext);
+            api.AddAction("/accounts/query/basic/bydiscordid", QueryBasicByDiscordID.ProcessContext);
+            api.AddAction("/accounts/vaporise/user/bynickname", DeleteUserByNickname.ProcessContext);
+            api.AddAction("/accounts/vaporise/user/bydiscordid", DeleteUserByDiscordID.ProcessContext);
+
+            api.AddAction("/tasks/submit", Submit.ProcessContext);
+            api.AddAction("/tasks/addmeta", AddTaskMetadata.ProcessContext);
+            api.AddAction("/tasks/addtask", AddTask.ProcessContext);
+            api.AddAction("/tasks/retrieve", Retrieve.ProcessContext);
+            api.AddAction("/tasks/query/metadata/bymetaid", QueryMetadata.ProcessContext);
+            api.AddAction("/tasks/query/progress/bymetaid", QueryTotalProgressByMetaID.ProcessContext);
+            api.AddAction("/tasks/query/outputs/bytaskid", QueryOutput.ProcessContext);
+            api.AddAction("/tasks/query/outputs/byappid", StreamOutputsByAppID.ProcessContext);
+
+            api.AddAction("/versions/add", AddVersion.ProcessContext);
+            api.AddAction("/versions/latest", GetLatestVersion.ProcessContext);
+
+            api.Listen();
+        }
+    }
 }
