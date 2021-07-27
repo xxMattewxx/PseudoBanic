@@ -376,9 +376,10 @@ namespace PseudoBanic.Data
 
                     using (var command = conn.CreateCommand())
                     {
-                        command.CommandText = "INSERT INTO tasks_metadata (task_name, binary_url) VALUES (@task_name, @binary_url);";
+                        command.CommandText = "INSERT INTO tasks_metadata (task_name, binary_url, file_hash) VALUES (@task_name, @binary_url, @file_hash);";
                         command.Parameters.AddWithValue("@task_name", metadata.Name);
                         command.Parameters.AddWithValue("@binary_url", metadata.BinaryURL);
+                        command.Parameters.AddWithValue("@file_hash", metadata.FileHash);
                         command.ExecuteNonQuery();
                         return command.LastInsertedId;
                     }
