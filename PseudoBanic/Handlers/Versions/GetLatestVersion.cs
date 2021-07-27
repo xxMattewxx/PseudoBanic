@@ -9,7 +9,6 @@ namespace PseudoBanic.Handlers.Versions
     {
         public static void ProcessContext(HttpListenerContext context, StreamWriter writer, StreamReader reader)
         {
-            string jsonStr = reader.ReadToEnd();
             string APIKey = context.Request.Headers.Get("Authorization");
 
             if (APIKey == null || APIKey.Length != 32)

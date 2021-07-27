@@ -40,7 +40,8 @@ namespace PseudoBanic.Handlers.Tasks
                         {
                             ID = reader.GetInt32(1),
                             Name = reader.GetString(5),
-                            BinaryURL = reader.GetString(6)
+                            BinaryURL = reader.GetString(6),
+                            FileHash = reader.GetString(7)
                         }
                     };
                 }
