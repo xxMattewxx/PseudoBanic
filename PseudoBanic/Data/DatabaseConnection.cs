@@ -295,7 +295,7 @@ namespace PseudoBanic.Data
             conn.Open();
 
             using MySqlCommand command = conn.CreateCommand();
-            command.CommandText = "SELECT consensus FROM tasks WHERE tasks.task_metaid = @metaid AND consensus != '';";
+            command.CommandText = "SELECT task_id,consensus FROM tasks WHERE tasks.task_metaid = @metaid AND consensus != '';";
             command.Parameters.AddWithValue("@metaid", metaid);
 
             using MySqlDataReader reader = command.ExecuteReader();
@@ -306,7 +306,8 @@ namespace PseudoBanic.Data
 
             do
             {
-                writer.Write(reader.GetString(0));
+                writer.WriteLine("<task{0}>", reader.GetInt32(0));
+                writer.Write(reader.GetString(1));
             }
             while (reader.Read());
 
