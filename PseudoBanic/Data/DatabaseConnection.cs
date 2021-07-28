@@ -306,8 +306,9 @@ namespace PseudoBanic.Data
 
             do
             {
-                writer.WriteLine("<task{0}>", reader.GetInt32(0));
+                writer.WriteLine("<task><id>{0}</id>", reader.GetInt32(0));
                 writer.Write(reader.GetString(1));
+                writer.WriteLine("</task>");
             }
             while (reader.Read());
 
