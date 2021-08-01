@@ -291,35 +291,40 @@ namespace PseudoBanic.Data
 
         public static void StreamOutputsByAppID(int metaid, StreamWriter writer)
         {
-            using MySqlConnection conn = new MySqlConnection(Global.builder.ConnectionString);
-            conn.Open();
+            
 
             Int32 taskid = 0;
 
             while (true)
             {
-                using (MySqlCommand command = conn.CreateCommand())
+                using (MySqlConnection conn = new MySqlConnection(Global.builder.ConnectionString))
                 {
-                    command.CommandText = "SELECT task_id,consensus FROM tasks WHERE tasks.task_metaid = @metaid AND task_status = 2 AND task_id > @taskid LIMIT 100;";
-                    command.Parameters.AddWithValue("@metaid", metaid);
-                    command.Parameters.AddWithValue("@taskid", taskid);
+                    conn.Open();
 
-                    using (MySqlDataReader reader = command.ExecuteReader()) {
-                        reader.Read();
+                    using (MySqlCommand command = conn.CreateCommand())
+                    {
+                        command.CommandText = "SELECT task_id,consensus FROM tasks WHERE tasks.task_metaid = @metaid AND task_status = 2 AND task_id > @taskid LIMIT 100;";
+                        command.Parameters.AddWithValue("@metaid", metaid);
+                        command.Parameters.AddWithValue("@taskid", taskid);
 
-                        if (!reader.HasRows)
-                            break;
-
-                        do
+                        using (MySqlDataReader reader = command.ExecuteReader())
                         {
-                            taskid = reader.GetInt32(0);
-                            writer.WriteLine("<task><id>{0}</id>", taskid);
-                            writer.Write(reader.GetString(1));
-                            writer.WriteLine("</task>");
-                        }
-                        while (reader.Read());
+                            reader.Read();
 
-                        writer.Flush();
+                            if (!reader.HasRows)
+                                break;
+
+                            do
+                            {
+                                taskid = reader.GetInt32(0);
+                                writer.WriteLine("<task><id>{0}</id>", taskid);
+                                writer.Write(reader.GetString(1));
+                                writer.WriteLine("</task>");
+                            }
+                            while (reader.Read());
+
+                            writer.Flush();
+                        }
                     }
                 }
             }
