@@ -294,26 +294,22 @@ namespace PseudoBanic.Data
             using MySqlConnection conn = new MySqlConnection(Global.builder.ConnectionString);
             conn.Open();
 
-            using MySqlCommand command = conn.CreateCommand();
-            command.CommandText = "SELECT task_id,consensus FROM tasks WHERE tasks.task_metaid = @metaid AND consensus != '';";
-            command.Parameters.AddWithValue("@metaid", metaid);
-
-            using MySqlDataReader reader = command.ExecuteReader();
-            reader.Read();
-
-            if (!reader.HasRows)
-                return;
-
-            do
+            while (true)
             {
+                using MySqlCommand command = conn.CreateCommand();
+                command.CommandText = "SELECT task_id,consensus FROM tasks WHERE tasks.task_metaid = @metaid AND consensus != '';";
+                command.Parameters.AddWithValue("@metaid", metaid);
+
+                using MySqlDataReader reader = command.ExecuteReader();
+                reader.Read();
+
+                if (!reader.HasRows)
+                    return;
+
                 writer.WriteLine("<task><id>{0}</id>", reader.GetInt32(0));
                 writer.Write(reader.GetString(1));
                 writer.WriteLine("</task>");
             }
-            while (reader.Read());
-
-            writer.Flush();
-            return;
         }
 
         public static bool AddUserInfo(UserInfo user)
