@@ -294,22 +294,33 @@ namespace PseudoBanic.Data
             using MySqlConnection conn = new MySqlConnection(Global.builder.ConnectionString);
             conn.Open();
 
+            Int32 taskid = 0;
+
             while (true)
             {
-                using MySqlCommand command = conn.CreateCommand();
-                command.CommandText = "SELECT task_id,consensus FROM tasks WHERE tasks.task_metaid = @metaid AND consensus != '';";
-                command.Parameters.AddWithValue("@metaid", metaid);
+                using (MySqlCommand command = conn.CreateCommand())
+                {
+                    command.CommandText = "SELECT task_id,consensus FROM tasks WHERE tasks.task_metaid = @metaid AND task_status = 2 AND task_id > @taskid;";
+                    command.Parameters.AddWithValue("@metaid", metaid);
+                    command.Parameters.AddWithValue("@taskid", taskid);
 
-                using MySqlDataReader reader = command.ExecuteReader();
-                reader.Read();
+                    using (MySqlDataReader reader = command.ExecuteReader()) {
+                        reader.Read();
 
-                if (!reader.HasRows)
-                    return;
+                        if (!reader.HasRows)
+                            break;
 
-                writer.WriteLine("<task><id>{0}</id>", reader.GetInt32(0));
-                writer.Write(reader.GetString(1));
-                writer.WriteLine("</task>");
+                        taskid = reader.GetInt32(0);
+                        writer.WriteLine("<task><id>{0}</id>", taskid);
+                        writer.Write(reader.GetString(1));
+                        writer.WriteLine("</task>");
+
+                        if (taskid % 25 == 0)
+                            writer.Flush();
+                    }
+                }
             }
+            writer.Flush();
         }
 
         public static bool AddUserInfo(UserInfo user)
