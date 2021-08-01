@@ -300,7 +300,7 @@ namespace PseudoBanic.Data
             {
                 using (MySqlCommand command = conn.CreateCommand())
                 {
-                    command.CommandText = "SELECT task_id,consensus FROM tasks WHERE tasks.task_metaid = @metaid AND task_status = 2 AND task_id > @taskid;";
+                    command.CommandText = "SELECT task_id,consensus FROM tasks WHERE tasks.task_metaid = @metaid AND task_status = 2 AND task_id > @taskid LIMIT 100;";
                     command.Parameters.AddWithValue("@metaid", metaid);
                     command.Parameters.AddWithValue("@taskid", taskid);
 
@@ -310,13 +310,16 @@ namespace PseudoBanic.Data
                         if (!reader.HasRows)
                             break;
 
-                        taskid = reader.GetInt32(0);
-                        writer.WriteLine("<task><id>{0}</id>", taskid);
-                        writer.Write(reader.GetString(1));
-                        writer.WriteLine("</task>");
+                        do
+                        {
+                            taskid = reader.GetInt32(0);
+                            writer.WriteLine("<task><id>{0}</id>", taskid);
+                            writer.Write(reader.GetString(1));
+                            writer.WriteLine("</task>");
+                        }
+                        while (reader.Read());
 
-                        if (taskid % 25 == 0)
-                            writer.Flush();
+                        writer.Flush();
                     }
                 }
             }
