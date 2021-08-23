@@ -366,11 +366,13 @@ namespace PseudoBanic.Data
 
                     using (var command = conn.CreateCommand())
                     {
-                        command.CommandText = "INSERT INTO tasks (task_metaid, task_status, quorum_left, input_data) VALUES (@task_metaid, @task_status, @quorum_left, @input_data);";
+                        command.CommandText = "INSERT INTO tasks (task_metaid, task_status, quorum_left, input_data, debug_only) " +
+                            "VALUES (@task_metaid, @task_status, @quorum_left, @input_data, @debug_only);";
                         command.Parameters.AddWithValue("@task_metaid", task.Metadata.ID);
                         command.Parameters.AddWithValue("@task_status", task.Status);
                         command.Parameters.AddWithValue("@quorum_left", task.QuorumLeft);
                         command.Parameters.AddWithValue("@input_data", task.InputData);
+                        command.Parameters.AddWithValue("@debug_only", task.IsDebugOnly);
                         command.ExecuteNonQuery();
                     }
                 }

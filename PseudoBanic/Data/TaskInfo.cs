@@ -7,6 +7,7 @@
         public int QuorumLeft;
         public string InputData;
         public string Consensus;
+        public bool IsDebugOnly;
         public TaskMeta Metadata;
 
         public bool IsValid()
