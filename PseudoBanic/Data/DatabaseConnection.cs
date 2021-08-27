@@ -356,6 +356,30 @@ namespace PseudoBanic.Data
             return true;
         }
 
+        public static bool UpdateUserToken(Int64 userID, string token)
+        {
+            try
+            {
+                using (var conn = new MySqlConnection(Global.builder.ConnectionString))
+                {
+                    conn.Open();
+
+                    using (var command = conn.CreateCommand())
+                    {
+                        command.CommandText = "UPDATE users SET token = @token WHERE userid = @userid";
+                        command.Parameters.AddWithValue("@userid", userID);
+                        command.Parameters.AddWithValue("@token", Utils.SHA256String(token));
+                        command.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+            return true;
+        }
+
         public static bool AddTask(TaskInfo task)
         {
             try

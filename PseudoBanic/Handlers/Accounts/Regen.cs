@@ -8,7 +8,7 @@ using System.Text;
 
 namespace PseudoBanic.Handlers.Accounts
 {
-    public class Register
+    public class Regen
     {
         public static void ProcessContext(HttpListenerContext context, StreamWriter writer, StreamReader reader)
         {
@@ -22,7 +22,7 @@ namespace PseudoBanic.Handlers.Accounts
                 return;
             }
 
-            RegisterRequest request = RegisterRequest.FromJson(jsonStr);
+            RegenRequest request = RegenRequest.FromJson(jsonStr);
             if (request == null || !request.IsValid())
             {
                 context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
@@ -31,35 +31,26 @@ namespace PseudoBanic.Handlers.Accounts
             }
 
             UserInfo user = DatabaseConnection.GetUserInfoByAPIKey(APIKey);
-            if (user == null || user.AdminLevel < AdminLevels.Moderator)
+            if (user == null || user.AdminLevel < AdminLevels.Manager)
             {
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                 writer.Write(new BaseResponse { Message = "Not authorized." }.ToJson());
                 return;
             }
 
-            UserInfo aux = DatabaseConnection.GetUserInfoByUsername(request.User.Username);
-            if (aux != null)
+            UserInfo target = DatabaseConnection.GetUserInfoByUsername(request.Username);
+            if (target == null)
             {
                 context.Response.StatusCode = (int)HttpStatusCode.Conflict;
-                writer.Write(new BaseResponse { Message = "Username already exists." }.ToJson());
+                writer.Write(new BaseResponse { Message = "Username does not exist." }.ToJson());
                 return;
             }
 
-            UserInfo discordUser = DatabaseConnection.GetUserInfoByDiscordID(request.User.DiscordID);
-            if (discordUser != null)
-            {
-                context.Response.StatusCode = (int)HttpStatusCode.Conflict;
-                writer.Write(new BaseResponse { Message = "Discord ID already in DB." }.ToJson());
-                return;
-            }
-
-            request.User.APIKey = Utils.GenerateAPIKey();
-
-            if (!DatabaseConnection.AddUserInfo(request.User))
+            string apikey = Utils.GenerateAPIKey();
+            if (!DatabaseConnection.UpdateUserToken(target.UserID, apikey))
             {
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                writer.Write(new BaseResponse { Message = "Failure adding user to DB." }.ToJson());
+                writer.Write(new BaseResponse { Message = "Failure updating user data in DB." }.ToJson());
                 return;
             }
 
@@ -68,8 +59,8 @@ namespace PseudoBanic.Handlers.Accounts
                 new RegisterResponse
                 {
                     Success = true,
-                    Message = "User and key generated.",
-                    APIKey = request.User.APIKey
+                    Message = "User token regenerated.",
+                    APIKey = apikey
                 }.ToJson()
             );
             return;

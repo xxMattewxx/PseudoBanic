@@ -6,6 +6,20 @@ namespace PseudoBanic
 {
     class Utils
     {
+        private static RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
+        public static string GenerateAPIKey()
+        {
+            byte[] buffer = new byte[16];
+            rng.GetNonZeroBytes(buffer);
+
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < buffer.Length; i++)
+            {
+                sb.Append(buffer[i].ToString("X2"));
+            }
+            return sb.ToString();
+        }
+
         public static string ValidCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-";
         public static bool IsValidUsername(string username)
         {
