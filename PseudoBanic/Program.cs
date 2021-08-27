@@ -23,9 +23,10 @@ namespace PseudoBanic
 
             api = new APIServer(port);
 
-            api.AddAction("/accounts/regen", Regen.ProcessContext);
             api.AddAction("/accounts/register", Register.ProcessContext);
             api.AddAction("/accounts/setlevel", ChangeUserLevel.ProcessContext);
+            api.AddAction("/accounts/regen/byname", RegenByUsername.ProcessContext);
+            api.AddAction("/accounts/regen/bydiscordid", RegenByDiscordID.ProcessContext);
             api.AddAction("/accounts/query/basic/bydiscordid", QueryBasicByDiscordID.ProcessContext);
             api.AddAction("/accounts/vaporise/user/bynickname", DeleteUserByNickname.ProcessContext);
             api.AddAction("/accounts/vaporise/user/bydiscordid", DeleteUserByDiscordID.ProcessContext);

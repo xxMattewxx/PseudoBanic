@@ -8,7 +8,7 @@ using System.Text;
 
 namespace PseudoBanic.Handlers.Accounts
 {
-    public class Regen
+    public class RegenByDiscordID
     {
         public static void ProcessContext(HttpListenerContext context, StreamWriter writer, StreamReader reader)
         {
@@ -22,7 +22,7 @@ namespace PseudoBanic.Handlers.Accounts
                 return;
             }
 
-            RegenRequest request = RegenRequest.FromJson(jsonStr);
+            RegenByDiscordIDRequest request = RegenByDiscordIDRequest.FromJson(jsonStr);
             if (request == null || !request.IsValid())
             {
                 context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
@@ -38,11 +38,11 @@ namespace PseudoBanic.Handlers.Accounts
                 return;
             }
 
-            UserInfo target = DatabaseConnection.GetUserInfoByUsername(request.Username);
+            UserInfo target = DatabaseConnection.GetUserInfoByDiscordID(request.DiscordID);
             if (target == null)
             {
                 context.Response.StatusCode = (int)HttpStatusCode.Conflict;
-                writer.Write(new BaseResponse { Message = "Username does not exist." }.ToJson());
+                writer.Write(new BaseResponse { Message = "Discord ID not registered." }.ToJson());
                 return;
             }
 
@@ -59,7 +59,7 @@ namespace PseudoBanic.Handlers.Accounts
                 new RegisterResponse
                 {
                     Success = true,
-                    Message = "User token regenerated.",
+                    Message = "User API key regenerated.",
                     APIKey = apikey
                 }.ToJson()
             );
