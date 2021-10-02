@@ -1,16 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
-using PseudoBanic.Data;
+﻿using PseudoBanic.Data;
 using PseudoBanic.Requests;
 using PseudoBanic.Responses;
-using System;
-using System.Data;
-using System.Data.Common;
 using System.IO;
 using System.Net;
 
-namespace PseudoBanic.Handlers.Tasks
+namespace PseudoBanic.Handlers.Accounts
 {
-    public class Retrieve
+    public class DeleteUserByDiscordID
     {
         public static void ProcessContext(HttpListenerContext context, StreamWriter writer, StreamReader reader)
         {
@@ -24,29 +20,43 @@ namespace PseudoBanic.Handlers.Tasks
                 return;
             }
 
+            DeleteUserRequest request = DeleteUserRequest.FromJson(jsonStr);
+            if (request == null || !request.IsValid())
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                writer.Write(new BaseResponse { Message = "Invalid request." }.ToJson());
+                return;
+            }
+
             UserInfo user = UserInfo.GetByAPIKey(APIKey);
-            if (user == null || user.AdminLevel < AdminLevels.None)
+            if (user == null || user.AdminLevel < AdminLevels.Administrator)
             {
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                 writer.Write(new BaseResponse { Message = "Not authorized." }.ToJson());
                 return;
             }
 
-            TaskInfo task = TaskInfo.RetrieveAtomic(user);
-            if (task == null)
+            UserInfo target = UserInfo.GetByDiscordID(request.DiscordID);
+            if (target == null)
             {
                 context.Response.StatusCode = (int)HttpStatusCode.NotFound;
-                writer.Write(new BaseResponse { Message = "No tasks available." }.ToJson());
+                writer.Write(new BaseResponse { Message = "User not found." }.ToJson());
+                return;
+            }
+
+            if (!target.Delete())
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                writer.Write(new BaseResponse { Message = "Failure deleting user from DB." }.ToJson());
                 return;
             }
 
             context.Response.StatusCode = (int)HttpStatusCode.OK;
             writer.Write(
-                new RetrieveResponse
+                new BaseResponse
                 {
                     Success = true,
-                    Message = "Task retrieved.",
-                    Task = task
+                    Message = "User deleted successfully."
                 }.ToJson()
             );
             return;

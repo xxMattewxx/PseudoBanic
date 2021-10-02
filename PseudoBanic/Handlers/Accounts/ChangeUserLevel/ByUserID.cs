@@ -6,7 +6,7 @@ using System.Net;
 
 namespace PseudoBanic.Handlers.Accounts
 {
-    public class DeleteUserByNickname
+    public class ChangeUserLevelByUserID
     {
         public static void ProcessContext(HttpListenerContext context, StreamWriter writer, StreamReader reader)
         {
@@ -20,7 +20,7 @@ namespace PseudoBanic.Handlers.Accounts
                 return;
             }
 
-            DeleteUserByNicknameRequest request = DeleteUserByNicknameRequest.FromJson(jsonStr);
+            ChangeUserLevelRequest request = ChangeUserLevelRequest.FromJson(jsonStr);
             if (request == null || !request.IsValid())
             {
                 context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
@@ -28,15 +28,15 @@ namespace PseudoBanic.Handlers.Accounts
                 return;
             }
 
-            UserInfo user = DatabaseConnection.GetUserInfoByAPIKey(APIKey);
-            if (user == null || user.AdminLevel < AdminLevels.Administrator)
+            UserInfo user = UserInfo.GetByAPIKey(APIKey);
+            if (user == null || user.AdminLevel < AdminLevels.Manager)
             {
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                 writer.Write(new BaseResponse { Message = "Not authorized." }.ToJson());
                 return;
             }
 
-            UserInfo target = DatabaseConnection.GetUserInfoByUsername(request.Username);
+            UserInfo target = UserInfo.GetByUserID(request.UserID);
             if (target == null)
             {
                 context.Response.StatusCode = (int)HttpStatusCode.NotFound;
@@ -44,10 +44,24 @@ namespace PseudoBanic.Handlers.Accounts
                 return;
             }
 
-            if (!DatabaseConnection.DeleteUserByID(target.UserID))
+            if (target.AdminLevel == request.Level)
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                writer.Write(new BaseResponse { Message = "Target already has the specified level." }.ToJson());
+                return;
+            }
+
+            if (target.AdminLevel >= user.AdminLevel)
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                writer.Write(new BaseResponse { Message = "Target user has a higher or equal amount of level." }.ToJson());
+                return;
+            }
+
+            if (!target.SetAdminLevel(request.Level))
             {
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                writer.Write(new BaseResponse { Message = "Failure deleting user from DB." }.ToJson());
+                writer.Write(new BaseResponse { Message = "Could not modify level in DB." }.ToJson());
                 return;
             }
 
@@ -56,7 +70,7 @@ namespace PseudoBanic.Handlers.Accounts
                 new BaseResponse
                 {
                     Success = true,
-                    Message = "User deleted successfully."
+                    Message = "User level changed successfully."
                 }.ToJson()
             );
             return;

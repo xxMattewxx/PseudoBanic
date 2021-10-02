@@ -2,24 +2,28 @@
 using System;
 namespace PseudoBanic.Requests
 {
-    class DeleteUserByNicknameRequest
+    class QueryBasicRequest
     {
+        public int UserID = Int32.MinValue;
         public string Username = null;
+        public Int64 DiscordID = Int32.MinValue;
 
         public bool IsValid()
         {
-            if (Username == null || Username.Length < 1 || Username.Length > 20) return false;
+            if (Username != null && Utils.IsValidUsername(Username)) return true;
+            if (UserID != Int32.MinValue) return true;
+            if (DiscordID != Int32.MinValue) return true;
 
             return true;
         }
 
-        public static DeleteUserByNicknameRequest FromJson(string str)
+        public static QueryBasicRequest FromJson(string str)
         {
-            DeleteUserByNicknameRequest ret = null;
+            QueryBasicRequest ret = null;
 
             try
             {
-                ret = JsonConvert.DeserializeObject<DeleteUserByNicknameRequest>(str);
+                ret = JsonConvert.DeserializeObject<QueryBasicRequest>(str);
             }
             catch (Exception) { }
 

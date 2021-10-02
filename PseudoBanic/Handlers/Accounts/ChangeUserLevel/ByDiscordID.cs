@@ -3,12 +3,10 @@ using PseudoBanic.Requests;
 using PseudoBanic.Responses;
 using System.IO;
 using System.Net;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace PseudoBanic.Handlers.Accounts
 {
-    public class RegenByDiscordID
+    public class ChangeUserLevelByDiscordID
     {
         public static void ProcessContext(HttpListenerContext context, StreamWriter writer, StreamReader reader)
         {
@@ -22,7 +20,7 @@ namespace PseudoBanic.Handlers.Accounts
                 return;
             }
 
-            RegenByDiscordIDRequest request = RegenByDiscordIDRequest.FromJson(jsonStr);
+            ChangeUserLevelRequest request = ChangeUserLevelRequest.FromJson(jsonStr);
             if (request == null || !request.IsValid())
             {
                 context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
@@ -30,7 +28,7 @@ namespace PseudoBanic.Handlers.Accounts
                 return;
             }
 
-            UserInfo user = DatabaseConnection.GetUserInfoByAPIKey(APIKey);
+            UserInfo user = UserInfo.GetByAPIKey(APIKey);
             if (user == null || user.AdminLevel < AdminLevels.Manager)
             {
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
@@ -38,29 +36,41 @@ namespace PseudoBanic.Handlers.Accounts
                 return;
             }
 
-            UserInfo target = DatabaseConnection.GetUserInfoByDiscordID(request.DiscordID);
+            UserInfo target = UserInfo.GetByDiscordID(request.DiscordID);
             if (target == null)
             {
-                context.Response.StatusCode = (int)HttpStatusCode.Conflict;
-                writer.Write(new BaseResponse { Message = "Discord ID not registered." }.ToJson());
+                context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                writer.Write(new BaseResponse { Message = "User not found." }.ToJson());
                 return;
             }
 
-            string apikey = Utils.GenerateAPIKey();
-            if (!DatabaseConnection.UpdateUserToken(target.UserID, apikey))
+            if (target.AdminLevel == request.Level)
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                writer.Write(new BaseResponse { Message = "Target already has the specified level." }.ToJson());
+                return;
+            }
+
+            if (target.AdminLevel >= user.AdminLevel)
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                writer.Write(new BaseResponse { Message = "Target user has a higher or equal amount of level." }.ToJson());
+                return;
+            }
+
+            if (!target.SetAdminLevel(request.Level))
             {
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                writer.Write(new BaseResponse { Message = "Failure updating user data in DB." }.ToJson());
+                writer.Write(new BaseResponse { Message = "Could not modify level in DB." }.ToJson());
                 return;
             }
 
             context.Response.StatusCode = (int)HttpStatusCode.OK;
             writer.Write(
-                new RegisterResponse
+                new BaseResponse
                 {
                     Success = true,
-                    Message = "User API key regenerated.",
-                    APIKey = apikey
+                    Message = "User level changed successfully."
                 }.ToJson()
             );
             return;

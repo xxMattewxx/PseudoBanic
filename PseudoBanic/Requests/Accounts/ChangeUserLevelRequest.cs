@@ -7,15 +7,19 @@ namespace PseudoBanic.Requests
 {
     class ChangeUserLevelRequest
     {
-        public string Username;
-        public int Level;
+        public int UserID = Int32.MinValue;
+        public string Username = null;
+        public Int64 DiscordID = Int32.MinValue;
+        public int Level = Int32.MinValue;
 
         public bool IsValid()
         {
             if (Level < AdminLevels.Banned || Level > AdminLevels.Developer) return false;
-            if (Username == null || !Utils.IsValidUsername(Username)) return false;
+            if (Username != null && Utils.IsValidUsername(Username)) return true;
+            if (UserID != Int32.MinValue) return true;
+            if (DiscordID != Int32.MinValue) return true;
 
-            return true;
+            return false;
         }
 
         public static ChangeUserLevelRequest FromJson(string str)

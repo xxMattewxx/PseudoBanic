@@ -8,6 +8,11 @@ namespace PseudoBanic.Handlers.Tasks
 {
     public class Submit
     {
+        public static bool AttributeResult(int userID, int taskID, string results)
+        {
+            return true;
+        }
+
         public static void ProcessContext(HttpListenerContext context, StreamWriter writer, StreamReader reader)
         {
             string jsonStr = reader.ReadToEnd();
@@ -19,7 +24,7 @@ namespace PseudoBanic.Handlers.Tasks
                 return;
             }
 
-            UserInfo user = DatabaseConnection.GetUserInfoByAPIKey(request.APIKey);
+            UserInfo user = UserInfo.GetByAPIKey(request.APIKey);
             if (user == null || user.AdminLevel < AdminLevels.None)
             {
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
@@ -27,7 +32,7 @@ namespace PseudoBanic.Handlers.Tasks
                 return;
             }
 
-            if (!DatabaseConnection.AttributeResult(user.UserID, request.TaskID, request.Results))
+            if (!AttributeResult(user.ID, request.TaskID, request.Results))
             {
                 context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 writer.Write(new BaseResponse { Message = "Could not attribute results to task." }.ToJson());

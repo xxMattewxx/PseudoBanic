@@ -3,24 +3,28 @@ using PseudoBanic.Data;
 using System;
 namespace PseudoBanic.Requests
 {
-    class RegenByUsernameRequest
+    class RegenRequest
     {
+        public Int64 DiscordID = Int64.MinValue;
+        public int UserID = Int32.MinValue;
         public string Username = null;
 
         public bool IsValid()
         {
-            if (Username == null || Username.Length == 0) return false;
+            if (DiscordID != Int64.MinValue) return true;
+            if (UserID != Int32.MinValue) return true;
+            if (Username != null && Username.Length != 0) return true;
 
-            return true;
+            return false;
         }
 
-        public static RegenByUsernameRequest FromJson(string str)
+        public static RegenRequest FromJson(string str)
         {
-            RegenByUsernameRequest ret = null;
+            RegenRequest ret = null;
 
             try
             {
-                ret = JsonConvert.DeserializeObject<RegenByUsernameRequest>(str);
+                ret = JsonConvert.DeserializeObject<RegenRequest>(str);
             }
             catch (Exception) { }
 

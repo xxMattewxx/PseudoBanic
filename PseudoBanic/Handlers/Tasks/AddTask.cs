@@ -28,7 +28,7 @@ namespace PseudoBanic.Handlers.Tasks
                 return;
             }
 
-            UserInfo user = DatabaseConnection.GetUserInfoByAPIKey(APIKey);
+            UserInfo user = UserInfo.GetByAPIKey(APIKey);
             if (user == null || user.AdminLevel < AdminLevels.Administrator)
             {
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
@@ -36,7 +36,7 @@ namespace PseudoBanic.Handlers.Tasks
                 return;
             }
 
-            if (!DatabaseConnection.AddTask(request.Task))
+            if (!TaskInfo.AddToDatabase(request.Task))
             {
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 writer.Write(new BaseResponse { Message = "Failure adding task to DB." }.ToJson());

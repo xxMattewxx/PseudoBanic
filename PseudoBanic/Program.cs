@@ -1,8 +1,9 @@
 ﻿using System;
 
 using PseudoBanic.Handlers.Accounts;
-using PseudoBanic.Handlers.Tasks;
 using PseudoBanic.Handlers.Versions;
+using PseudoBanic.Handlers.Tasks;
+using PseudoBanic.Data;
 
 namespace PseudoBanic
 {
@@ -24,24 +25,34 @@ namespace PseudoBanic
             api = new APIServer(port);
 
             api.AddAction("/accounts/register", Register.ProcessContext);
-            api.AddAction("/accounts/setlevel", ChangeUserLevel.ProcessContext);
-            api.AddAction("/accounts/regen/byname", RegenByUsername.ProcessContext);
-            api.AddAction("/accounts/regen/bydiscordid", RegenByDiscordID.ProcessContext);
-            api.AddAction("/accounts/query/basic/bydiscordid", QueryBasicByDiscordID.ProcessContext);
-            api.AddAction("/accounts/vaporise/user/bynickname", DeleteUserByNickname.ProcessContext);
+
+            api.AddAction("/accounts/setlevel/byuserid", ChangeUserLevelByUserID.ProcessContext);
+            api.AddAction("/accounts/setlevel/byusername", ChangeUserLevelByUsername.ProcessContext);
+            api.AddAction("/accounts/setlevel/bydiscordid", ChangeUserLevelByDiscordID.ProcessContext);
+
+            api.AddAction("/accounts/vaporise/user/byuserid", DeleteUserByUserID.ProcessContext);
+            api.AddAction("/accounts/vaporise/user/byusername", DeleteUserByUsername.ProcessContext);
             api.AddAction("/accounts/vaporise/user/bydiscordid", DeleteUserByDiscordID.ProcessContext);
 
-            api.AddAction("/tasks/submit", Submit.ProcessContext);
-            api.AddAction("/tasks/addmeta", AddTaskMetadata.ProcessContext);
-            api.AddAction("/tasks/addtask", AddTask.ProcessContext);
-            api.AddAction("/tasks/retrieve", Retrieve.ProcessContext);
-            api.AddAction("/tasks/query/metadata/bymetaid", QueryMetadata.ProcessContext);
-            api.AddAction("/tasks/query/progress/bymetaid", QueryTotalProgressByMetaID.ProcessContext);
-            api.AddAction("/tasks/query/outputs/bytaskid", QueryOutput.ProcessContext);
-            api.AddAction("/tasks/query/outputs/byappid", StreamOutputsByAppID.ProcessContext);
+            api.AddAction("/accounts/query/basic/byuserid", QueryBasicByUserID.ProcessContext);
+            api.AddAction("/accounts/query/basic/byusername", QueryBasicByUsername.ProcessContext);
+            api.AddAction("/accounts/query/basic/bydiscordid", QueryBasicByDiscordID.ProcessContext);
+
+            api.AddAction("/accounts/regen/byuserid", RegenByUserID.ProcessContext);
+            api.AddAction("/accounts/regen/byusername", RegenByUsername.ProcessContext);
+            api.AddAction("/accounts/regen/bydiscordid", RegenByDiscordID.ProcessContext);
 
             api.AddAction("/versions/add", AddVersion.ProcessContext);
             api.AddAction("/versions/latest", GetLatestVersion.ProcessContext);
+
+            api.AddAction("/tasks/submit", Submit.ProcessContext);
+            api.AddAction("/tasks/addtask", AddTask.ProcessContext);
+            api.AddAction("/tasks/retrieve", Retrieve.ProcessContext);
+            api.AddAction("/tasks/addmeta", AddTaskMetadata.ProcessContext);
+            api.AddAction("/tasks/query/metadata/bymetaid", QueryMetadata.ProcessContext);
+            /*api.AddAction("/tasks/query/progress/bymetaid", QueryTotalProgressByMetaID.ProcessContext);
+            api.AddAction("/tasks/query/outputs/bytaskid", QueryOutput.ProcessContext);
+            api.AddAction("/tasks/query/outputs/byappid", StreamOutputsByAppID.ProcessContext);*/
 
             api.Listen();
         }

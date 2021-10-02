@@ -6,7 +6,7 @@ using System.Net;
 
 namespace PseudoBanic.Handlers.Accounts
 {
-    public class QueryBasicByDiscordID
+    public class DeleteUserByUsername
     {
         public static void ProcessContext(HttpListenerContext context, StreamWriter writer, StreamReader reader)
         {
@@ -20,7 +20,7 @@ namespace PseudoBanic.Handlers.Accounts
                 return;
             }
 
-            QueryBasicByDiscordIDRequest request = QueryBasicByDiscordIDRequest.FromJson(jsonStr);
+            DeleteUserRequest request = DeleteUserRequest.FromJson(jsonStr);
             if (request == null || !request.IsValid())
             {
                 context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
@@ -28,35 +28,35 @@ namespace PseudoBanic.Handlers.Accounts
                 return;
             }
 
-            UserInfo user = DatabaseConnection.GetUserInfoByAPIKey(APIKey);
-            if (user == null || user.AdminLevel < AdminLevels.Basic)
+            UserInfo user = UserInfo.GetByAPIKey(APIKey);
+            if (user == null || user.AdminLevel < AdminLevels.Administrator)
             {
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                 writer.Write(new BaseResponse { Message = "Not authorized." }.ToJson());
                 return;
             }
 
-            UserInfo target = DatabaseConnection.GetUserInfoByDiscordID(request.DiscordID);
+            UserInfo target = UserInfo.GetByUsername(request.Username);
             if (target == null)
             {
                 context.Response.StatusCode = (int)HttpStatusCode.NotFound;
-                writer.Write(new BaseResponse { Message = "Associated target not found." }.ToJson());
+                writer.Write(new BaseResponse { Message = "User not found." }.ToJson());
+                return;
+            }
+
+            if (!target.Delete())
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                writer.Write(new BaseResponse { Message = "Failure deleting user from DB." }.ToJson());
                 return;
             }
 
             context.Response.StatusCode = (int)HttpStatusCode.OK;
             writer.Write(
-                new QueryBasicByDiscordIDResponse
+                new BaseResponse
                 {
                     Success = true,
-                    Message = "Basic user data retrieved successfully.",
-                    User = new UserInfo
-                    {
-                        AdminLevel = target.AdminLevel,
-                        Username = target.Username,
-                        UserID = target.UserID,
-                        DiscordID = target.DiscordID
-                    }
+                    Message = "User deleted successfully."
                 }.ToJson()
             );
             return;

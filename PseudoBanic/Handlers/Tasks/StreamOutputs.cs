@@ -1,4 +1,4 @@
-﻿using PseudoBanic.Data;
+﻿/* TO IMPLEMENT using PseudoBanic.Data;
 using PseudoBanic.Requests;
 using PseudoBanic.Responses;
 using System.IO;
@@ -48,4 +48,4 @@ namespace PseudoBanic.Handlers.Tasks
             return;
         }
     }
-}
+}*/

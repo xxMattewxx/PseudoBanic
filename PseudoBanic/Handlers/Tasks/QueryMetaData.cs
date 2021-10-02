@@ -28,7 +28,7 @@ namespace PseudoBanic.Handlers.Tasks
                 return;
             }
 
-            UserInfo user = DatabaseConnection.GetUserInfoByAPIKey(APIKey);
+            UserInfo user = UserInfo.GetByAPIKey(APIKey);
             if (user == null || user.AdminLevel < AdminLevels.Basic)
             {
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
@@ -36,7 +36,7 @@ namespace PseudoBanic.Handlers.Tasks
                 return;
             }
 
-            TaskMeta meta = DatabaseConnection.GetTaskMetaByID(request.ID);
+            TaskMeta meta = TaskMeta.GetByID(request.ID);
             if (meta == null)
             {
                 context.Response.StatusCode = (int)HttpStatusCode.NotFound;

@@ -28,7 +28,7 @@ namespace PseudoBanic.Handlers.Versions
                 return;
             }
 
-            UserInfo user = DatabaseConnection.GetUserInfoByAPIKey(APIKey);
+            UserInfo user = UserInfo.GetByAPIKey(APIKey);
             if (user == null || user.AdminLevel < AdminLevels.Developer)
             {
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
@@ -36,7 +36,7 @@ namespace PseudoBanic.Handlers.Versions
                 return;
             }
 
-            long versionID = DatabaseConnection.AddVersion(request.Version);
+            long versionID = ClientVersion.AddToDatabase(request.Version);
             if (versionID == -1)
             {
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;

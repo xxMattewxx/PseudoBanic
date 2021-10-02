@@ -1,7 +1,7 @@
-﻿using PseudoBanic.Data;
-using PseudoBanic.Responses;
-using System.IO;
+﻿using System.IO;
 using System.Net;
+using PseudoBanic.Data;
+using PseudoBanic.Responses;
 
 namespace PseudoBanic.Handlers.Versions
 {
@@ -18,7 +18,7 @@ namespace PseudoBanic.Handlers.Versions
                 return;
             }
 
-            UserInfo user = DatabaseConnection.GetUserInfoByAPIKey(APIKey);
+            UserInfo user = UserInfo.GetByAPIKey(APIKey);
             if (user == null || user.AdminLevel < AdminLevels.None)
             {
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
@@ -26,7 +26,7 @@ namespace PseudoBanic.Handlers.Versions
                 return;
             }
 
-            ClientVersion version = DatabaseConnection.GetLatestClient();
+            ClientVersion version = ClientVersion.GetLatest();
             if (version == null)
             {
                 context.Response.StatusCode = (int)HttpStatusCode.NotFound;

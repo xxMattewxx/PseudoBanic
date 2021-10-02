@@ -8,7 +8,7 @@ using System.Text;
 
 namespace PseudoBanic.Handlers.Accounts
 {
-    public class RegenByUsername
+    public class RegenByUserID
     {
         public static void ProcessContext(HttpListenerContext context, StreamWriter writer, StreamReader reader)
         {
@@ -22,7 +22,7 @@ namespace PseudoBanic.Handlers.Accounts
                 return;
             }
 
-            RegenByUsernameRequest request = RegenByUsernameRequest.FromJson(jsonStr);
+            RegenRequest request = RegenRequest.FromJson(jsonStr);
             if (request == null || !request.IsValid())
             {
                 context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
@@ -30,7 +30,7 @@ namespace PseudoBanic.Handlers.Accounts
                 return;
             }
 
-            UserInfo user = DatabaseConnection.GetUserInfoByAPIKey(APIKey);
+            UserInfo user = UserInfo.GetByAPIKey(APIKey);
             if (user == null || user.AdminLevel < AdminLevels.Manager)
             {
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
@@ -38,16 +38,16 @@ namespace PseudoBanic.Handlers.Accounts
                 return;
             }
 
-            UserInfo target = DatabaseConnection.GetUserInfoByUsername(request.Username);
+            UserInfo target = UserInfo.GetByUserID(request.UserID);
             if (target == null)
             {
-                context.Response.StatusCode = (int)HttpStatusCode.Conflict;
-                writer.Write(new BaseResponse { Message = "Username does not exist." }.ToJson());
+                context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                writer.Write(new BaseResponse { Message = "Target user not found." }.ToJson());
                 return;
             }
 
             string apikey = Utils.GenerateAPIKey();
-            if (!DatabaseConnection.UpdateUserToken(target.UserID, apikey))
+            if (!target.SetAPIKey(apikey))
             {
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 writer.Write(new BaseResponse { Message = "Failure updating user data in DB." }.ToJson());

@@ -30,7 +30,7 @@ namespace PseudoBanic.Handlers.Accounts
                 return;
             }
 
-            UserInfo user = DatabaseConnection.GetUserInfoByAPIKey(APIKey);
+            UserInfo user = UserInfo.GetByAPIKey(APIKey);
             if (user == null || user.AdminLevel < AdminLevels.Moderator)
             {
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
@@ -38,16 +38,16 @@ namespace PseudoBanic.Handlers.Accounts
                 return;
             }
 
-            UserInfo aux = DatabaseConnection.GetUserInfoByUsername(request.User.Username);
-            if (aux != null)
+            UserInfo userByUsername = UserInfo.GetByUsername(request.User.Username);
+            if (userByUsername != null)
             {
                 context.Response.StatusCode = (int)HttpStatusCode.Conflict;
                 writer.Write(new BaseResponse { Message = "Username already exists." }.ToJson());
                 return;
             }
 
-            UserInfo discordUser = DatabaseConnection.GetUserInfoByDiscordID(request.User.DiscordID);
-            if (discordUser != null)
+            UserInfo userByDiscordID = UserInfo.GetByDiscordID(request.User.DiscordID);
+            if (userByDiscordID != null)
             {
                 context.Response.StatusCode = (int)HttpStatusCode.Conflict;
                 writer.Write(new BaseResponse { Message = "Discord ID already in DB." }.ToJson());
@@ -55,8 +55,7 @@ namespace PseudoBanic.Handlers.Accounts
             }
 
             request.User.APIKey = Utils.GenerateAPIKey();
-
-            if (!DatabaseConnection.AddUserInfo(request.User))
+            if (!UserInfo.AddToDatabase(request.User))
             {
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 writer.Write(new BaseResponse { Message = "Failure adding user to DB." }.ToJson());

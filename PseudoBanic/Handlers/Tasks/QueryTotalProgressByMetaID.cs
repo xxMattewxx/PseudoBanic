@@ -1,4 +1,4 @@
-﻿using PseudoBanic.Data;
+﻿/* TO IMPLEMENT using PseudoBanic.Data;
 using PseudoBanic.Requests;
 using PseudoBanic.Responses;
 using System.IO;
@@ -28,7 +28,7 @@ namespace PseudoBanic.Handlers.Tasks
                 return;
             }
 
-            UserInfo user = DatabaseConnection.GetUserInfoByAPIKey(APIKey);
+            UserInfo user = UserInfo.GetByAPIKey(APIKey);
             if (user == null || user.AdminLevel < AdminLevels.Basic)
             {
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
@@ -36,7 +36,7 @@ namespace PseudoBanic.Handlers.Tasks
                 return;
             }
 
-            TotalProgress ret = DatabaseConnection.QueryTotalProgress(request.ID, false);
+            TotalProgress ret = TotalProgress.GetByMetadataID(request.ID);
             if (ret == null)
             {
                 context.Response.StatusCode = (int)HttpStatusCode.NotFound;
@@ -59,4 +59,4 @@ namespace PseudoBanic.Handlers.Tasks
             return;
         }
     }
-}
+}/**/

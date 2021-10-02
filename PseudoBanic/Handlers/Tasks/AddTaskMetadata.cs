@@ -28,7 +28,7 @@ namespace PseudoBanic.Handlers.Tasks
                 return;
             }
 
-            UserInfo user = DatabaseConnection.GetUserInfoByAPIKey(APIKey);
+            UserInfo user = UserInfo.GetByAPIKey(APIKey);
             if (user == null || user.AdminLevel < AdminLevels.Manager)
             {
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
@@ -36,7 +36,7 @@ namespace PseudoBanic.Handlers.Tasks
                 return;
             }
 
-            long metadataID = DatabaseConnection.AddTaskMetadata(request.Metadata);
+            long metadataID = TaskMeta.AddToDatabase(request.Metadata);
             if (metadataID == -1)
             {
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
