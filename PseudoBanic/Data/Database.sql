@@ -1,5 +1,5 @@
 /* POSTGRES DATABASE INITIALIZATION CODE */
-DROP TABLE IF EXISTS "Users";
+/*DROP TABLE IF EXISTS "Users";
 DROP TABLE IF EXISTS "Tasks";
 DROP TABLE IF EXISTS "Versions";
 DROP TABLE IF EXISTS "Assignments";
@@ -87,4 +87,4 @@ INSERT INTO "Tasks" ("MetadataID", "Status", "QuorumLeft", "InputData") VALUES (
 INSERT INTO "Tasks" ("MetadataID", "Status", "QuorumLeft", "InputData") VALUES (1, 1, 2, 'Test input data');
 INSERT INTO "Tasks" ("MetadataID", "Status", "QuorumLeft", "InputData") VALUES (1, 1, 2, 'Test input data');
 INSERT INTO "Tasks" ("MetadataID", "Status", "QuorumLeft", "InputData") VALUES (1, 1, 2, 'Test input data');
-INSERT INTO "Tasks" ("MetadataID", "Status", "QuorumLeft", "InputData") VALUES (1, 1, 2, 'Test input data');
+INSERT INTO "Tasks" ("MetadataID", "Status", "QuorumLeft", "InputData") VALUES (1, 1, 2, 'Test input data');*/

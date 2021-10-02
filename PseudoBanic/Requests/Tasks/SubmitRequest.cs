@@ -6,13 +6,13 @@ namespace PseudoBanic.Requests
     class SubmitRequest
     {
         public string APIKey = null;
-        public int TaskID = -1;
+        public int? TaskID = -1;
         public string Results = null;
 
         public bool IsValid()
         {
             if (APIKey == null || APIKey.Length != 32) return false;
-            if (TaskID < 1) return false;
+            if (TaskID == null || TaskID.Value < 1) return false;
 
             return true;
         }

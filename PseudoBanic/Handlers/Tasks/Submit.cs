@@ -32,7 +32,7 @@ namespace PseudoBanic.Handlers.Tasks
                 return;
             }
 
-            if (!AttributeResult(user.ID, request.TaskID, request.Results))
+            if (!AttributeResult(user.ID, request.TaskID.Value, request.Results))
             {
                 context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 writer.Write(new BaseResponse { Message = "Could not attribute results to task." }.ToJson());

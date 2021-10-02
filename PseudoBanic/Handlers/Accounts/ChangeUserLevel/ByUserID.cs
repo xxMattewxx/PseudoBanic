@@ -36,7 +36,7 @@ namespace PseudoBanic.Handlers.Accounts
                 return;
             }
 
-            UserInfo target = UserInfo.GetByUserID(request.UserID);
+            UserInfo target = UserInfo.GetByUserID(request.UserID.Value);
             if (target == null)
             {
                 context.Response.StatusCode = (int)HttpStatusCode.NotFound;
@@ -58,7 +58,7 @@ namespace PseudoBanic.Handlers.Accounts
                 return;
             }
 
-            if (!target.SetAdminLevel(request.Level))
+            if (!target.SetAdminLevel(request.Level.Value))
             {
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 writer.Write(new BaseResponse { Message = "Could not modify level in DB." }.ToJson());

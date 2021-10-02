@@ -4,11 +4,11 @@ namespace PseudoBanic.Requests
 {
     class StreamOutputsByAppIDRequest
     {
-        public int MetaID = -1;
+        public int? MetaID = -1;
 
         public bool IsValid()
         {
-            if (MetaID < 1) return false;
+            if (MetaID == null || MetaID.Value < 1) return false;
 
             return true;
         }

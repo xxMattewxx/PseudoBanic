@@ -5,11 +5,11 @@ namespace PseudoBanic.Requests
 {
     class QueryTotalProgressByMetaIDRequest
     {
-        public int ID = -1;
+        public int? ID = -1;
 
         public bool IsValid()
         {
-            if (ID < 1) return false;
+            if (ID == null || ID.Value < 1) return false;
 
             return true;
         }

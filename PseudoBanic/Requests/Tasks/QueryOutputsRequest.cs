@@ -4,11 +4,11 @@ namespace PseudoBanic.Requests
 {
     class QueryOutputsRequest
     {
-        public int TaskID = -1;
+        public int? TaskID = -1;
 
         public bool IsValid()
         {
-            if (TaskID < 1) return false;
+            if (TaskID == null || TaskID.Value < 1) return false;
 
             return true;
         }

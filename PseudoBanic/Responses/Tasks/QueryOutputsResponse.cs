@@ -4,6 +4,6 @@ namespace PseudoBanic.Responses
 {
     class QueryOutputsResponse : BaseResponse
     {
-        public List<String> Outputs;
+        public List<String> Outputs { get; set; }
     }
 }

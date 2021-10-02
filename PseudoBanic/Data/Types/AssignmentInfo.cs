@@ -8,13 +8,13 @@ namespace PseudoBanic.Data
 {
     class AssignmentInfo
     {
-        public int AssignmentID;
-        public int TaskID;
-        public TaskInfo Task;
-        public int UserID;
-        public UserInfo User;
-        public DateTime Deadline;
-        public int State;
-        public string Output;
+        public int AssignmentID { get; set; }
+        public int TaskID { get; set; }
+        public TaskInfo Task { get; set; }
+        public int UserID { get; set; }
+        public UserInfo User { get; set; }
+        public DateTime Deadline { get; set; }
+        public int State { get; set; }
+        public string Output { get; set; }
     }
 }

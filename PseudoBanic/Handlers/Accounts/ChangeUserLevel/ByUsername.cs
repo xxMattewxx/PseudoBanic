@@ -58,7 +58,7 @@ namespace PseudoBanic.Handlers.Accounts
                 return;
             }
 
-            if (!target.SetAdminLevel(request.Level))
+            if (!target.SetAdminLevel(request.Level.Value))
             {
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 writer.Write(new BaseResponse { Message = "Could not modify level in DB." }.ToJson());

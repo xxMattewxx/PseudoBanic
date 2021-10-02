@@ -36,7 +36,7 @@ namespace PseudoBanic.Handlers.Tasks
                 return;
             }
 
-            TaskMeta meta = TaskMeta.GetByID(request.ID);
+            TaskMeta meta = TaskMeta.GetByID(request.ID.Value);
             if (meta == null)
             {
                 context.Response.StatusCode = (int)HttpStatusCode.NotFound;
