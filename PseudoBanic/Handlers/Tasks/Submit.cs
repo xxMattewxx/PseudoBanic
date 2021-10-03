@@ -8,11 +8,6 @@ namespace PseudoBanic.Handlers.Tasks
 {
     public class Submit
     {
-        public static bool AttributeResult(int userID, int taskID, string results)
-        {
-            return true;
-        }
-
         public static void ProcessContext(HttpListenerContext context, StreamWriter writer, StreamReader reader)
         {
             string jsonStr = reader.ReadToEnd();
@@ -32,7 +27,15 @@ namespace PseudoBanic.Handlers.Tasks
                 return;
             }
 
-            if (!AttributeResult(user.ID, request.TaskID.Value, request.Results))
+            AssignmentInfo assignment = AssignmentInfo.GetFromTaskInfo(user.ID, request.TaskID.Value);
+            if(assignment == null)
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                writer.Write(new BaseResponse { Message = "Assignment data not found." }.ToJson());
+                return;
+            }
+
+            if (!assignment.UpdateOutput(request.Results))
             {
                 context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 writer.Write(new BaseResponse { Message = "Could not attribute results to task." }.ToJson());
