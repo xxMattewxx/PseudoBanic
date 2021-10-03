@@ -35,7 +35,7 @@ namespace PseudoBanic.Handlers.Tasks
             TaskInfo task = TaskInfo.RetrieveAtomic(user);
             if (task == null)
             {
-                context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                context.Response.StatusCode = (int)HttpStatusCode.NoContent;
                 writer.Write(new BaseResponse { Message = "No tasks available." }.ToJson());
                 return;
             }
