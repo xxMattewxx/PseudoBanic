@@ -1,9 +1,9 @@
 ﻿using System;
 
+using PseudoBanic.Handlers.Tasks;
 using PseudoBanic.Handlers.Accounts;
 using PseudoBanic.Handlers.Versions;
-using PseudoBanic.Handlers.Tasks;
-using PseudoBanic.Data;
+using PseudoBanic.Handlers.Leaderboard;
 
 namespace PseudoBanic
 {
@@ -50,6 +50,8 @@ namespace PseudoBanic
             api.AddAction("/tasks/retrieve", Retrieve.ProcessContext);
             api.AddAction("/tasks/addmeta", AddTaskMetadata.ProcessContext);
             api.AddAction("/tasks/query/metadata/bymetaid", QueryMetadata.ProcessContext);
+
+            api.AddAction("/leaderboard/historical/query/all", GetAllData.ProcessContext);
             /*api.AddAction("/tasks/query/progress/bymetaid", QueryTotalProgressByMetaID.ProcessContext);
             api.AddAction("/tasks/query/outputs/bytaskid", QueryOutput.ProcessContext);
             api.AddAction("/tasks/query/outputs/byappid", StreamOutputsByAppID.ProcessContext);*/
