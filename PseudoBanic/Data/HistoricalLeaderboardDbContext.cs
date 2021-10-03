@@ -8,9 +8,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace PseudoBanic.Data
 {
-    class LeaderboardDbContext : DbContext
+    class HistoricalLeaderboardDbContext : DbContext
     {
-        public DbSet<LeaderboardPoint> Leaderboard { get; set; }
+        public DbSet<HistoricalLeaderboardPoint> HistoricalLeaderboard { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

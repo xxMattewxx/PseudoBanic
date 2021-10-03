@@ -1,4 +1,4 @@
-﻿using PseudoBanic.Data.Types;
+﻿using PseudoBanic.Data;
 using PseudoBanic.Responses;
 using System;
 using System.Collections.Generic;
@@ -23,11 +23,11 @@ namespace PseudoBanic.Handlers.Leaderboard
                 return;
             }
 
-            List<LeaderboardPoint> ret = LeaderboardPoint.GetAllHistoricalData();
-            writer.Write(new GetAllDataResponse {
+            List<HistoricalLeaderboardPoint> ret = HistoricalLeaderboardPoint.GetAllData();
+            writer.Write(new GetAllHistoricalDataResponse {
                 Success = true,
                 Message = "Leaderboard successfully retrieved.",
-                Leaderboard = ret
+                HistoricalLeaderboard = ret
             }.ToJson());
             return;
         }

@@ -6,8 +6,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PseudoBanic.Data
 {
-    [Table("Leaderboard")]
-    class LeaderboardPoint
+    [Table("HistoricalLeaderboard")]
+    class HistoricalLeaderboardPoint
     {
         [Key]
         public long ID { get; set; }
@@ -17,10 +17,10 @@ namespace PseudoBanic.Data
         public int InvalidatedPoints { get; set; }
         public DateTime SnapshotTime { get; set; }
 
-        public static List<LeaderboardPoint> GetAllData()
+        public static List<HistoricalLeaderboardPoint> GetAllData()
         {
-            using var dbContext = new LeaderboardDbContext();
-            return dbContext.Leaderboard.ToList();
+            using var dbContext = new HistoricalLeaderboardDbContext();
+            return dbContext.HistoricalLeaderboard.ToList();
         }
     }
 }
