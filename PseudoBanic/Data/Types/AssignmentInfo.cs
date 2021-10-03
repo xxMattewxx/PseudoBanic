@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,7 +10,8 @@ namespace PseudoBanic.Data
 {
     class AssignmentInfo
     {
-        public int AssignmentID { get; set; }
+        [Key]
+        public int ID { get; set; }
         public int TaskID { get; set; }
         public TaskInfo Task { get; set; }
         public int UserID { get; set; }
@@ -28,7 +30,7 @@ namespace PseudoBanic.Data
 
                     using var command = connection.CreateCommand();
                     command.CommandText = "SELECT * FROM UpdateAtomic(@assignmentID, @output);";
-                    command.Parameters.AddWithValue("@assignmentID", AssignmentID);
+                    command.Parameters.AddWithValue("@assignmentID", ID);
                     command.Parameters.AddWithValue("@output", output);
                     command.ExecuteNonQuery();
                 }
