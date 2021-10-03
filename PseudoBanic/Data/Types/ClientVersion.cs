@@ -52,7 +52,7 @@ namespace PseudoBanic.Data
                 return FromJSON(cachedValue);
 
             using var dbContext = new VersionDbContext();
-            var version = dbContext.Versions.Last();
+            var version = dbContext.Versions.OrderBy(x => x.VersionNumber).Last();
 
             if (version != null)
                 version.UpdateCache();

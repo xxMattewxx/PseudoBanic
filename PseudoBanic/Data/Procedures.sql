@@ -43,9 +43,7 @@ BEGIN
 	PERFORM pg_advisory_xact_lock(151);
 	SELECT "Points", "ValidatedPoints", "InvalidatedPoints" INTO points, validatedPoints, invalidatedPoints
 		FROM "Leaderboard"
-		WHERE
-			"UserID" = userID AND
-			"MetadataID" = metaID
+		WHERE "UserID" = userID AND "MetadataID" = metaID
 		LIMIT 1;
 	INSERT INTO "HistoricalLeaderboard" ("UserID", "MetadataID", "Points", "ValidatedPoints", "InvalidatedPoints") VALUES (userID, metaID, points, validatedPoints, invalidatedPoints);
 END;
@@ -155,7 +153,6 @@ DECLARE
 	retrievedID INTEGER;
 BEGIN
 	PERFORM pg_advisory_xact_lock(1337);
-	@retrievedID = 0;
 	WITH t AS (
 		SELECT "TaskID" as taskid
 		FROM "Assignments"
@@ -165,16 +162,9 @@ BEGIN
 			NOW() > "Assignments"."Deadline" AND
 			"State" = 0
 	)
-	UPDATE "Tasks"
-	SET "QuorumLeft" = "QuorumLeft" + 1
-	FROM t
-	WHERE "ID" = taskid;
+	UPDATE "Tasks" SET "QuorumLeft" = "QuorumLeft" + 1 FROM t WHERE "ID" = taskid;
 
-	UPDATE "Assignments"
-	SET "State" = 4
-	WHERE
-		NOW() > "Deadline" AND
-		"State" = 0;
+	UPDATE "Assignments" SET "State" = 4 WHERE NOW() > "Deadline" AND "State" = 0;
 
 	RETURN 1;
 END;
