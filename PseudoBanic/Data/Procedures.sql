@@ -54,8 +54,10 @@ CREATE OR REPLACE FUNCTION IncreaseUserPoints(userID INTEGER, metaID INTEGER)
 	RETURNS VOID AS $$
 BEGIN
 	PERFORM pg_advisory_xact_lock(151);
-	INSERT INTO "Leaderboard" ("UserID", "MetadataID", "Points", "ValidatedPoints", "InvalidatedPoints") VALUES (userID, metaID, 0, 0, 0) ON CONFLICT DO NOTHING;
-	UPDATE "Leaderboard" SET "Points" = "Points" + 1 WHERE "UserID" = userID AND "MetadataID" = metaID;
+    IF NOT EXISTS (SELECT "UserID" FROM "Leaderboard" WHERE "UserID" = userID AND "MetadataID" = metaID LIMIT 1) THEN
+        INSERT INTO "Leaderboard" ("UserID", "MetadataID", "Points", "ValidatedPoints", "InvalidatedPoints") VALUES (userID, metaID, 0, 0, 0) ON CONFLICT DO NOTHING;
+	END IF;
+    UPDATE "Leaderboard" SET "Points" = "Points" + 1 WHERE "UserID" = userID AND "MetadataID" = metaID;
 	PERFORM SaveHistoricalLeaderboard(userID, metaID);
 END;
 $$
@@ -65,8 +67,10 @@ CREATE OR REPLACE FUNCTION IncreaseUserValidatedPoints(userID INTEGER, metaID IN
 	RETURNS VOID AS $$
 BEGIN
 	PERFORM pg_advisory_xact_lock(151);
-	INSERT INTO "Leaderboard" ("UserID", "MetadataID", "Points", "ValidatedPoints", "InvalidatedPoints") VALUES (userID, metaID, 0, 0, 0) ON CONFLICT DO NOTHING;
-	UPDATE "Leaderboard" SET "ValidatedPoints" = "ValidatedPoints" + 1 WHERE "UserID" = userID AND "MetadataID" = metaID;
+	IF NOT EXISTS (SELECT "UserID" FROM "Leaderboard" WHERE "UserID" = userID AND "MetadataID" = metaID LIMIT 1) THEN
+        INSERT INTO "Leaderboard" ("UserID", "MetadataID", "Points", "ValidatedPoints", "InvalidatedPoints") VALUES (userID, metaID, 0, 0, 0) ON CONFLICT DO NOTHING;
+	END IF;
+    UPDATE "Leaderboard" SET "ValidatedPoints" = "ValidatedPoints" + 1 WHERE "UserID" = userID AND "MetadataID" = metaID;
 	PERFORM SaveHistoricalLeaderboard(userID, metaID);
 END;
 $$
@@ -76,8 +80,10 @@ CREATE OR REPLACE FUNCTION IncreaseUserInvalidatedPoints(userID INTEGER, metaID 
 	RETURNS VOID AS $$
 BEGIN
 	PERFORM pg_advisory_xact_lock(151);
-	INSERT INTO "Leaderboard" ("UserID", "MetadataID", "Points", "ValidatedPoints", "InvalidatedPoints") VALUES (userID, metaID, 0, 0, 0) ON CONFLICT DO NOTHING;
-	UPDATE "Leaderboard" SET "InvalidatedPoints" = "InvalidatedPoints" + 1 WHERE "UserID" = userID AND "MetadataID" = metaID;
+	IF NOT EXISTS (SELECT "UserID" FROM "Leaderboard" WHERE "UserID" = userID AND "MetadataID" = metaID LIMIT 1) THEN
+        INSERT INTO "Leaderboard" ("UserID", "MetadataID", "Points", "ValidatedPoints", "InvalidatedPoints") VALUES (userID, metaID, 0, 0, 0) ON CONFLICT DO NOTHING;
+	END IF;
+    UPDATE "Leaderboard" SET "InvalidatedPoints" = "InvalidatedPoints" + 1 WHERE "UserID" = userID AND "MetadataID" = metaID;
 	PERFORM SaveHistoricalLeaderboard(userID, metaID);
 END;
 $$
