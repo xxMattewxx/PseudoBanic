@@ -40,6 +40,8 @@ namespace PseudoBanic.Handlers.Tasks
                 return;
             }
 
+            Console.WriteLine("Task {0} assigned to user {1}", task.ID, user.ID);
+
             context.Response.StatusCode = (int)HttpStatusCode.OK;
             writer.Write(
                 new RetrieveResponse
