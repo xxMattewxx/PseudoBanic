@@ -58,12 +58,6 @@ namespace PseudoBanic
             api.AddAction("/tasks/query/outputs/bytaskid", QueryOutput.ProcessContext);*/
             api.AddAction("/tasks/query/outputs/byappid", StreamOutputsByAppID.ProcessContext);
 
-            using var dbContext = new HistoricalLeaderboardDbContext();
-            var lol = dbContext.HistoricalLeaderboard.GroupBy(p => p.UserID);
-
-            foreach (var aux in lol.ToList())
-                Console.WriteLine(aux);
-
             api.Listen();
         }
     }

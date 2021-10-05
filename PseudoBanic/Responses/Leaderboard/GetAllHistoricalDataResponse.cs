@@ -5,6 +5,6 @@ namespace PseudoBanic.Responses
 {
     class GetAllHistoricalDataResponse : BaseResponse
     {
-        public List<HistoricalLeaderboardPoint> HistoricalLeaderboard;
+        public List<HistoricalLeaderboardPoint> HistoricalLeaderboard { get; set; }
     }
 }
