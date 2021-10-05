@@ -62,9 +62,9 @@ namespace PseudoBanic.Handlers.Tasks
 
                     using (var command = conn.CreateCommand())
                     {
-                        command.CommandText = "SELECT \"ID\",\"Consensus\",\"Username\" " +
-                            "FROM \"Tasks\" JOIN \"Users\" ON \"Tasks\".\"UserID\" = \"Users\".\"ID\" " +
-                            "WHERE \"MetadataID\" = @metaid AND \"Status\" = 2 AND \"ID\" > @taskid LIMIT 100;";
+                        command.CommandText = "SELECT \"ID\",\"Consensus\" " +
+                            "FROM \"Tasks\" " +
+                            "WHERE \"MetadataID\" = @metaid AND \"Status\" = 2 AND \"Tasks\".\"ID\" > @taskid LIMIT 100;";
 
                         command.Parameters.AddWithValue("@metaid", metaid);
                         command.Parameters.AddWithValue("@taskid", taskid);
@@ -79,7 +79,7 @@ namespace PseudoBanic.Handlers.Tasks
                             do
                             {
                                 taskid = reader.GetInt32(0);
-                                writer.WriteLine("<task><id>{0}</id><volunteer>{1}</volunteer>", taskid, reader.GetString(2));
+                                writer.WriteLine("<task><id>{0}</id>", taskid);
                                 writer.Write(reader.GetString(1));
                                 writer.WriteLine("</task>");
                             }
