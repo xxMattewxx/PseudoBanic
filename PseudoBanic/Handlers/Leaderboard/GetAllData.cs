@@ -14,7 +14,7 @@ namespace PseudoBanic.Handlers.Leaderboard
     {
         public static void ProcessContext(HttpListenerContext context, StreamWriter writer, StreamReader reader)
         {
-            string APIKey = context.Request.Headers.Get("Authorization");
+            /*string APIKey = context.Request.Headers.Get("Authorization");
 
             if (APIKey == null || APIKey.Length != 32)
             {
@@ -28,7 +28,7 @@ namespace PseudoBanic.Handlers.Leaderboard
                 Success = true,
                 Message = "Leaderboard successfully retrieved.",
                 HistoricalLeaderboard = ret
-            }.ToJson());
+            }.ToJson());*/
             return;
         }
     }

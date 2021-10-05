@@ -46,7 +46,10 @@ CREATE TABLE "Assignments" (
 	"UserID" INTEGER, 
 	"Deadline" TIMESTAMP, 
 	"State" SMALLINT DEFAULT 0, 
-	"Output" TEXT
+	"Output" TEXT,
+	"TimeSpent" DOUBLE,
+	"SubmissionTime" TIMESTAMP,
+	"ValidationTime" TIMESTAMP
 );
 
 CREATE TABLE "Leaderboard" (
@@ -63,9 +66,7 @@ CREATE TABLE "HistoricalLeaderboard" (
 	"ID" SERIAL PRIMARY KEY,
 	"UserID" INTEGER,
 	"MetadataID" INTEGER,
-	"Points" INTEGER,
-	"ValidatedPoints" INTEGER,
-	"InvalidatedPoints" INTEGER,
+	"Result" INTEGER, /* 0 = submitted | 1 = validated | 2 = invalidated
 	"SnapshotTime" TIMESTAMP DEFAULT NOW()
 );
 

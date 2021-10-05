@@ -1,6 +1,8 @@
-﻿/* TO IMPLEMENT using PseudoBanic.Data;
+﻿using Npgsql;
+using PseudoBanic.Data;
 using PseudoBanic.Requests;
 using PseudoBanic.Responses;
+using System;
 using System.IO;
 using System.Net;
 
@@ -28,7 +30,7 @@ namespace PseudoBanic.Handlers.Tasks
                 return;
             }
 
-            UserInfo user = DatabaseConnection.GetUserInfoByAPIKey(APIKey);
+            UserInfo user = UserInfo.GetByAPIKey(APIKey);
             if (user == null || user.AdminLevel < AdminLevels.Basic)
             {
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
@@ -36,7 +38,7 @@ namespace PseudoBanic.Handlers.Tasks
                 return;
             }
 
-            TaskMeta meta = DatabaseConnection.GetTaskMetaByID(request.MetaID);
+            TaskMeta meta = TaskMeta.GetByID(request.MetaID.Value);
             if (meta == null)
             {
                 context.Response.StatusCode = (int)HttpStatusCode.NotFound;
@@ -44,8 +46,51 @@ namespace PseudoBanic.Handlers.Tasks
                 return;
             }
 
-            DatabaseConnection.StreamOutputsByAppID(request.MetaID, writer);
+            StreamOutputs(request.MetaID.Value, writer);
             return;
         }
+
+        private static void StreamOutputs(int metaid, StreamWriter writer)
+        {
+            Int32 taskid = 0;
+
+            while (true)
+            {
+                using (NpgsqlConnection conn = new NpgsqlConnection(Global.DBConnectionStr.ConnectionString))
+                {
+                    conn.Open();
+
+                    using (var command = conn.CreateCommand())
+                    {
+                        command.CommandText = "SELECT \"ID\",\"Consensus\",\"Username\" " +
+                            "FROM \"Tasks\" JOIN \"Users\" ON \"Tasks\".\"UserID\" = \"Users\".\"ID\" " +
+                            "WHERE \"MetadataID\" = @metaid AND \"Status\" = 2 AND \"ID\" > @taskid LIMIT 100;";
+
+                        command.Parameters.AddWithValue("@metaid", metaid);
+                        command.Parameters.AddWithValue("@taskid", taskid);
+
+                        using (var reader = command.ExecuteReader())
+                        {
+                            reader.Read();
+
+                            if (!reader.HasRows)
+                                break;
+
+                            do
+                            {
+                                taskid = reader.GetInt32(0);
+                                writer.WriteLine("<task><id>{0}</id><volunteer>{1}</volunteer>", taskid, reader.GetString(2));
+                                writer.Write(reader.GetString(1));
+                                writer.WriteLine("</task>");
+                            }
+                            while (reader.Read());
+
+                            writer.Flush();
+                        }
+                    }
+                }
+            }
+            writer.Flush();
+        }
     }
-}*/
+}

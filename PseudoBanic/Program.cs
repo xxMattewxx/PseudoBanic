@@ -4,6 +4,8 @@ using PseudoBanic.Handlers.Tasks;
 using PseudoBanic.Handlers.Accounts;
 using PseudoBanic.Handlers.Versions;
 using PseudoBanic.Handlers.Leaderboard;
+using PseudoBanic.Data;
+using System.Linq;
 
 namespace PseudoBanic
 {
@@ -53,8 +55,14 @@ namespace PseudoBanic
 
             api.AddAction("/leaderboard/historical/query/all", GetAllData.ProcessContext);
             /*api.AddAction("/tasks/query/progress/bymetaid", QueryTotalProgressByMetaID.ProcessContext);
-            api.AddAction("/tasks/query/outputs/bytaskid", QueryOutput.ProcessContext);
-            api.AddAction("/tasks/query/outputs/byappid", StreamOutputsByAppID.ProcessContext);*/
+            api.AddAction("/tasks/query/outputs/bytaskid", QueryOutput.ProcessContext);*/
+            api.AddAction("/tasks/query/outputs/byappid", StreamOutputsByAppID.ProcessContext);
+
+            using var dbContext = new HistoricalLeaderboardDbContext();
+            var lol = dbContext.HistoricalLeaderboard.GroupBy(p => p.UserID);
+
+            foreach (var aux in lol.ToList())
+                Console.WriteLine(aux);
 
             api.Listen();
         }
