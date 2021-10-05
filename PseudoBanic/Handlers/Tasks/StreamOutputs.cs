@@ -64,7 +64,7 @@ namespace PseudoBanic.Handlers.Tasks
                     {
                         command.CommandText = "SELECT \"ID\",\"Consensus\" " +
                             "FROM \"Tasks\" " +
-                            "WHERE \"MetadataID\" = @metaid AND \"Status\" = 2 AND \"Tasks\".\"ID\" > @taskid LIMIT 100;";
+                            "WHERE \"MetadataID\" = @metaid AND \"Status\" = 2 AND \"Tasks\".\"ID\" > @taskid ORDER BY \"ID\" ASC LIMIT 100;";
 
                         command.Parameters.AddWithValue("@metaid", metaid);
                         command.Parameters.AddWithValue("@taskid", taskid);
