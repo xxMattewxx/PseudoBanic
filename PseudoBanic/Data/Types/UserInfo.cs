@@ -10,7 +10,7 @@ namespace PseudoBanic.Data
     [Table("Users")]
     public class UserInfo
     {
-        [Key]
+        [Key, JsonIgnore]
         public int ID { get; set; }
         public string Username { get; set; }
         public string APIKey { get; set; }

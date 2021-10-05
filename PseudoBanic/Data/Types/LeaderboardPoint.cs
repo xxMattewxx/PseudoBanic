@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Newtonsoft.Json;
 using Microsoft.EntityFrameworkCore;
+using PseudoBanic.Data.Dtos;
 
 namespace PseudoBanic.Data
 {
@@ -13,7 +14,7 @@ namespace PseudoBanic.Data
     {
         [Key, JsonIgnore]
         public long ID { get; set; }
-        public UserInfo User { get; set; }
+        public UsernameReadDto User { get; set; }
         [JsonIgnore]
         public long MetadataID { get; set; }
         public int Points { get; set; }
