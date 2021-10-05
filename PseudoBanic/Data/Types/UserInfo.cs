@@ -3,9 +3,11 @@ using System.Linq;
 using Newtonsoft.Json;
 using StackExchange.Redis;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PseudoBanic.Data
 {
+    [Table("Users")]
     public class UserInfo
     {
         [Key]
