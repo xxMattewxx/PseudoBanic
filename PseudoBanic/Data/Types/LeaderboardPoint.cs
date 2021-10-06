@@ -33,6 +33,7 @@ namespace PseudoBanic.Data
             return dbContext.Leaderboard
                 .Where(x => x.MetadataID == id)
                 .Include(point => point.User)
+                .OrderBy(z => z.ValidatedPoints)
                 .ToList();
         }
     }
