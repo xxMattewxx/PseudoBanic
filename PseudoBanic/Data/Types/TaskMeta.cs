@@ -13,6 +13,7 @@ namespace PseudoBanic.Data
         [Key]
         public int ID { get; set; }
         public string Name { get; set; }
+        public string Description { get; set; }
         public string BinaryURL { get; set; }
         public string FileHash { get; set; }
         public bool PassByFile { get; set; }
@@ -22,6 +23,7 @@ namespace PseudoBanic.Data
             if (Name == null || Name.Length < 5) return false;
             if (FileHash == null || FileHash.Length != 32) return false;
             if (BinaryURL == null || !Uri.IsWellFormedUriString(BinaryURL, UriKind.Absolute)) return false;
+            if (Description == null || Description.Length < 5) return false;
 
             return true;
         }
