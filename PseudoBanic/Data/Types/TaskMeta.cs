@@ -3,6 +3,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Collections.Generic;
 
 namespace PseudoBanic.Data
 {
@@ -45,6 +46,13 @@ namespace PseudoBanic.Data
                 .SingleOrDefault();
 
             return task;
+        }
+
+        public static List<TaskMeta> GetAll()
+        {
+            using var dbContext = new TasksMetadataDbContext();
+
+            return dbContext.TasksMetadata.ToList();
         }
     }
 }

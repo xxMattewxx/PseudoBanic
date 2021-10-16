@@ -2,6 +2,7 @@
 
 using PseudoBanic.Handlers.Tasks;
 using PseudoBanic.Handlers.Accounts;
+using PseudoBanic.Handlers.Projects;
 using PseudoBanic.Handlers.Versions;
 using PseudoBanic.Handlers.Leaderboard;
 using PseudoBanic.Data;
@@ -52,6 +53,8 @@ namespace PseudoBanic
             api.AddAction("/tasks/retrieve", Retrieve.ProcessContext);
             api.AddAction("/tasks/addmeta", AddTaskMetadata.ProcessContext);
             api.AddAction("/tasks/query/metadata/bymetaid", QueryMetadata.ProcessContext);
+
+            api.AddAction("/projects/list", ListProjects.ProcessContext);
 
             api.AddAction("/leaderboard/current", GetCurrentLeaderboard.ProcessContext);
             /*TODO api.AddAction("/leaderboard/historical/query/all", GetCurrentLeaderboard.ProcessContext);

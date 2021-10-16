@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace PseudoBanic.Data
 {
@@ -19,10 +20,16 @@ namespace PseudoBanic.Data
         public int InvalidatedPoints { get; set; }
         public DateTime SnapshotTime { get; set; }
 
-        public static List<HistoricalLeaderboardPoint> GetDataForTime(DateTime time)
+        public static List<HistoricalLeaderboardPoint> GetDataForTime(long metadataID, DateTime time)
         {
+            using var dbContext = new HistoricalLeaderboardDbContext();
+            dbContext.HistoricalLeaderboard.FromSqlRaw("");
             return null;
-            //return dbContext.HistoricalLeaderboard.ToList();
+            /*return dbContext.HistoricalLeaderboard
+                .Where(x => x.MetadataID == metadataID && x.SnapshotTime < time)
+                .OrderByDescending(x => x.SnapshotTime)
+                .take
+                .ToList();*/
         }
     }
 }

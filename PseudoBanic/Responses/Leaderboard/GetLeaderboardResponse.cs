@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace PseudoBanic.Responses
 {
-    class GetCurrentLeaderboardResponse : BaseResponse
+    class GetLeaderboardResponse : BaseResponse
     {
         public List<LeaderboardPoint> Leaderboard { get; set; }
     }

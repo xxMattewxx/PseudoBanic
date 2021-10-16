@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <None Remove="Data\Database.sql" />
+    <None Remove="Data\fix.sql" />
     <None Remove="Data\Procedures.sql" />
     <None Remove="Data\Timed.sql" />
   </ItemGroup>
