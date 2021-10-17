@@ -4,7 +4,6 @@ namespace PseudoBanic.Data
 {
     public class TotalProgress
     {
-        public int ID { get; set; }
         public string Name { get; set; }
         public int TotalDone { get; set; }
         public int TotalExisting { get; set; }
@@ -17,12 +16,19 @@ namespace PseudoBanic.Data
             return true;
         }
 
-        /*public static TotalProgress GetByMetadataID(int metadataID)
+        public static TotalProgress GetByMetadataID(int metadataID)
         {
             using var dbContext = new TasksDbContext();
-            var user = dbContext.Tasks.Where(task => task.MetadataID == metadataID).FirstOrDefault();
+            var name = TaskMeta.GetByID(metadataID).Name;
+            var tasksCount = dbContext.Tasks.Where(task => task.MetadataID == metadataID).Count();
+            var totalDone = dbContext.Tasks.Where(task => task.MetadataID == metadataID && task.Status == TaskStatus.Execution).Count();
 
-            return user;
-        }*/
+            return new TotalProgress()
+            {
+                Name = name,
+                TotalExisting = tasksCount,
+                TotalDone = totalDone
+            };
+        }
     }
 }

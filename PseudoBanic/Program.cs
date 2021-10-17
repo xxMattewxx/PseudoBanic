@@ -58,9 +58,10 @@ namespace PseudoBanic
 
             api.AddAction("/leaderboard/current", GetCurrentLeaderboard.ProcessContext);
             /*TODO api.AddAction("/leaderboard/historical/query/all", GetCurrentLeaderboard.ProcessContext);
-            /*api.AddAction("/tasks/query/progress/bymetaid", QueryTotalProgressByMetaID.ProcessContext);
             api.AddAction("/tasks/query/outputs/bytaskid", QueryOutput.ProcessContext);*/
+
             api.AddAction("/tasks/query/outputs/byappid", StreamOutputsByAppID.ProcessContext);
+            api.AddAction("/tasks/query/progress/bymetaid", QueryTotalProgressByMetaID.ProcessContext);
 
             api.Listen();
         }

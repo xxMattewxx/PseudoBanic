@@ -1,4 +1,4 @@
-﻿/* TO IMPLEMENT using PseudoBanic.Data;
+﻿using PseudoBanic.Data;
 using PseudoBanic.Requests;
 using PseudoBanic.Responses;
 using System.IO;
@@ -36,7 +36,7 @@ namespace PseudoBanic.Handlers.Tasks
                 return;
             }
 
-            TotalProgress ret = TotalProgress.GetByMetadataID(request.ID);
+            TotalProgress ret = TotalProgress.GetByMetadataID(request.ID.Value);
             if (ret == null)
             {
                 context.Response.StatusCode = (int)HttpStatusCode.NotFound;
@@ -53,7 +53,7 @@ namespace PseudoBanic.Handlers.Tasks
                     TotalDone = ret.TotalDone,
                     TotalGenerated = ret.TotalExisting,
                     Name = ret.Name,
-                    ID = ret.ID
+                    ID = request.ID.Value
                 }.ToJson()
             );
             return;
