@@ -37,6 +37,7 @@ namespace PseudoBanic
             api.AddAction("/accounts/vaporise/user/byusername", DeleteUserByUsername.ProcessContext);
             api.AddAction("/accounts/vaporise/user/bydiscordid", DeleteUserByDiscordID.ProcessContext);
 
+            api.AddAction("/accounts/query/basic/me", QueryBasicMe.ProcessContext);
             api.AddAction("/accounts/query/basic/byuserid", QueryBasicByUserID.ProcessContext);
             api.AddAction("/accounts/query/basic/byusername", QueryBasicByUsername.ProcessContext);
             api.AddAction("/accounts/query/basic/bydiscordid", QueryBasicByDiscordID.ProcessContext);
