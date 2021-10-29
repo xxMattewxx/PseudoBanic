@@ -7,6 +7,7 @@ using PseudoBanic.Handlers.Versions;
 using PseudoBanic.Handlers.Leaderboard;
 using PseudoBanic.Data;
 using System.Linq;
+using System.IO;
 
 namespace PseudoBanic
 {
@@ -15,6 +16,20 @@ namespace PseudoBanic
         public static APIServer api;
         public static void Main(string[] args)
         {
+            using var dbContext = new HistoricalLeaderboardDbContext();
+            using var fileWriter = new StreamWriter("dump.txt");
+            using var debugWriter = new StreamWriter("debug.txt");
+
+            DateTime start = DateTime.Now;
+            foreach (var aux in dbContext.HistoricalLeaderboard
+                .Where(x => x.MetadataID == 3))
+            {
+                fileWriter.WriteLine("{0} {1} {2} {3} {4}", aux.UserID, aux.Points, aux.ValidatedPoints, aux.InvalidatedPoints, Utils.ConvertToUnixTimestamp(aux.SnapshotTime));
+            }
+            fileWriter.Flush();
+            debugWriter.WriteLine("Done in {0} ms", DateTime.Now.Subtract(start).TotalMilliseconds);
+            debugWriter.Flush();
+
             int port = 1337;
 
             for (int i = 0; i < args.Length; i++)

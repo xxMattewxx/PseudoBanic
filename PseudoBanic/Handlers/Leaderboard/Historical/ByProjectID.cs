@@ -17,6 +17,7 @@ namespace PseudoBanic.Handlers.Leaderboard.Historical
         static void StreamData(StreamWriter writer, long projectID)
         {
             using var dbContext = new HistoricalLeaderboardDbContext();
+            
             foreach(var aux in dbContext.HistoricalLeaderboard
                 .Where(x => x.MetadataID == projectID))
             {
