@@ -16,6 +16,16 @@ namespace PseudoBanic
         public static APIServer api;
         public static void Main(string[] args)
         {
+            int port = 1337;
+
+            for (int i = 0; i < args.Length; i++)
+            {
+                if (args[i] == "--port")
+                    port = Convert.ToInt32(args[i + 1]);
+            }
+
+            Global.Load();
+
             using var dbContext = new HistoricalLeaderboardDbContext();
             using var fileWriter = new StreamWriter("dump.txt");
             using var debugWriter = new StreamWriter("debug.txt");
@@ -29,16 +39,6 @@ namespace PseudoBanic
             fileWriter.Flush();
             debugWriter.WriteLine("Done in {0} ms", DateTime.Now.Subtract(start).TotalMilliseconds);
             debugWriter.Flush();
-
-            int port = 1337;
-
-            for (int i = 0; i < args.Length; i++)
-            {
-                if (args[i] == "--port")
-                    port = Convert.ToInt32(args[i + 1]);
-            }
-
-            Global.Load();
 
             api = new APIServer(port);
 
