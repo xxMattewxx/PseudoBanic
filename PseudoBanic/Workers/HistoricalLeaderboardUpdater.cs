@@ -32,7 +32,7 @@ namespace PseudoBanic.Workers
             {
                 var cachedDB = Global.RedisMultiplexer.GetDatabase();
 
-                cachedDB.StringSet("historical-leaderboard-projectid-" + projectID + "-" + (cacheVersion + 1), newValue, TimeSpan.FromMinutes(3));
+                cachedDB.StringSetAsync("historical-leaderboard-projectid-" + projectID + "-" + (cacheVersion + 1), newValue, TimeSpan.FromMinutes(1)).Wait();
             }
             catch { }
         }
@@ -42,7 +42,7 @@ namespace PseudoBanic.Workers
             try
             {
                 var cachedDB = Global.RedisMultiplexer.GetDatabase();
-                var value = cachedDB.StringGet("historical-leaderboard-projectid-" + projectID + "-" + cacheVersion);
+                var value = cachedDB.StringGetAsync("historical-leaderboard-projectid-" + projectID + "-" + cacheVersion).Result;
                 if (!value.HasValue)
                     return null;
 
