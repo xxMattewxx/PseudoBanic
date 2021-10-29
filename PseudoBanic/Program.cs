@@ -53,16 +53,16 @@ namespace PseudoBanic
             api.AddAction("/tasks/addtask", AddTask.ProcessContext);
             api.AddAction("/tasks/retrieve", Retrieve.ProcessContext);
             api.AddAction("/tasks/addmeta", AddTaskMetadata.ProcessContext);
+
             api.AddAction("/tasks/query/metadata/bymetaid", QueryMetadata.ProcessContext);
+            api.AddAction("/tasks/query/outputs/byappid", StreamOutputsByAppID.ProcessContext);
+            api.AddAction("/tasks/query/progress/bymetaid", QueryTotalProgressByMetaID.ProcessContext);
 
             api.AddAction("/projects/list", ListProjects.ProcessContext);
 
             api.AddAction("/leaderboard/current", GetCurrentLeaderboard.ProcessContext);
-            /*TODO api.AddAction("/leaderboard/historical/query/all", GetCurrentLeaderboard.ProcessContext);
-            api.AddAction("/tasks/query/outputs/bytaskid", QueryOutput.ProcessContext);*/
+            api.AddAction("/leaderboard/historical/byprojectid", Handlers.Leaderboard.Historical.ByProjectID.ProcessContext);
 
-            api.AddAction("/tasks/query/outputs/byappid", StreamOutputsByAppID.ProcessContext);
-            api.AddAction("/tasks/query/progress/bymetaid", QueryTotalProgressByMetaID.ProcessContext);
 
             api.Listen();
         }
