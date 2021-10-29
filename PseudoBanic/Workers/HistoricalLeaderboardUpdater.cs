@@ -11,29 +11,34 @@ namespace PseudoBanic.Workers
     class HistoricalLeaderboardHelper
     {
         static long LastID = 0;
-        const int CACHE_UPDATE_RATE = 1000 * 30;
+        const int CACHE_UPDATE_RATE = 1000;
 
-        static string UpdateData()
+        static void UpdateData()
         {
-            var cachedDB = Global.RedisMultiplexer.GetDatabase();
-            using var dbContext = new HistoricalLeaderboardDbContext();
-
-            StringBuilder builder = new StringBuilder();
-            var results = dbContext.HistoricalLeaderboard
-                .Where(x => x.ID > LastID)
-                .OrderBy(z => z.ID);
-
-            foreach (var aux in results)
+            try
             {
-                LastID = aux.ID;
+                var cachedDB = Global.RedisMultiplexer.GetDatabase();
+                using var dbContext = new HistoricalLeaderboardDbContext();
 
-                cachedDB.ListRightPush(
-                    "historical-leaderboard-projectid-" + aux.MetadataID, 
-                    string.Format("{0} {1} {2} {3} {4}", aux.UserID, aux.Points, aux.ValidatedPoints, aux.InvalidatedPoints, Utils.ConvertToUnixTimestamp(aux.SnapshotTime))
-                );
+                StringBuilder builder = new StringBuilder();
+                var results = dbContext.HistoricalLeaderboard
+                    .Where(x => x.ID > LastID)
+                    .OrderBy(z => z.ID)
+                    .Take(1000)
+                    .ToList();
+
+                for (int i = 0; i < Math.Min(1000, results.Count); i++)
+                {
+                    var aux = results[i];
+                    LastID = aux.ID;
+
+                    cachedDB.ListRightPush(
+                        "historical-leaderboard-projectid-" + aux.MetadataID,
+                        string.Format("{0} {1} {2} {3} {4}", aux.UserID, aux.Points, aux.ValidatedPoints, aux.InvalidatedPoints, Utils.ConvertToUnixTimestamp(aux.SnapshotTime))
+                    );
+                }
             }
-
-            return builder.ToString();
+            catch { }
         }
 
         public static string GetData(long projectID)
