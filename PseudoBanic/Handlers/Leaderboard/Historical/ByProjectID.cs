@@ -26,7 +26,7 @@ namespace PseudoBanic.Handlers.Leaderboard.Historical
                 return;
             }
 
-            writer.Write(Workers.HistoricalLeaderboardHelper.GetData(request.MetadataID.Value));
+            writer.Write(Workers.HistoricalLeaderboardHelper.GetData(request.MetadataID.Value).Result);
         }
     }
 }

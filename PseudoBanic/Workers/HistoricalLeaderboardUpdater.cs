@@ -13,7 +13,7 @@ namespace PseudoBanic.Workers
         static long LastID = 0;
         const int CACHE_UPDATE_RATE = 1000;
 
-        static void UpdateData()
+        static async void UpdateData()
         {
             try
             {
@@ -32,7 +32,7 @@ namespace PseudoBanic.Workers
                     var aux = results[i];
                     LastID = aux.ID;
 
-                    cachedDB.ListRightPush(
+                    await cachedDB.ListRightPushAsync(
                         "historical-leaderboard-projectid-" + aux.MetadataID,
                         string.Format("{0} {1} {2} {3} {4}", aux.UserID, aux.Points, aux.ValidatedPoints, aux.InvalidatedPoints, Utils.ConvertToUnixTimestamp(aux.SnapshotTime))
                     );
@@ -41,12 +41,12 @@ namespace PseudoBanic.Workers
             catch { }
         }
 
-        public static string GetData(long projectID)
+        public static async Task<string> GetData(long projectID)
         {
             try
             {
                 var cachedDB = Global.RedisMultiplexer.GetDatabase();
-                var value = cachedDB.ListRangeAsync("historical-leaderboard-projectid-" + projectID).Result;
+                var value = await cachedDB.ListRangeAsync("historical-leaderboard-projectid-" + projectID);
                 if (value == null)
                     return null;
 
