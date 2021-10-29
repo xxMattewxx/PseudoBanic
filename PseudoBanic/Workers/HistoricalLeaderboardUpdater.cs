@@ -29,7 +29,7 @@ namespace PseudoBanic.Workers
 
                 cachedDB.ListRightPush(
                     "historical-leaderboard-projectid-" + aux.MetadataID, 
-                    string.Format("{0} {1} {2} {3} {4}\n", aux.UserID, aux.Points, aux.ValidatedPoints, aux.InvalidatedPoints, Utils.ConvertToUnixTimestamp(aux.SnapshotTime))
+                    string.Format("{0} {1} {2} {3} {4}", aux.UserID, aux.Points, aux.ValidatedPoints, aux.InvalidatedPoints, Utils.ConvertToUnixTimestamp(aux.SnapshotTime))
                 );
             }
 
