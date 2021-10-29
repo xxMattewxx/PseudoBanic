@@ -11,7 +11,7 @@ namespace PseudoBanic.Workers
     class HistoricalLeaderboardHelper
     {
         const int CACHE_UPDATE_RATE = 1000 * 30;
-
+        static int cacheVersion = 0;
         static string GenerateData(long projectID)
         {
             using var dbContext = new HistoricalLeaderboardDbContext();
@@ -32,7 +32,7 @@ namespace PseudoBanic.Workers
             {
                 var cachedDB = Global.RedisMultiplexer.GetDatabase();
 
-                cachedDB.StringSet("historical-leaderboard-projectid-" + projectID, newValue, TimeSpan.MaxValue);
+                cachedDB.StringSet("historical-leaderboard-projectid-" + projectID + "-" + (cacheVersion + 1), newValue, TimeSpan.FromMinutes(3));
             }
             catch { }
         }
@@ -42,7 +42,7 @@ namespace PseudoBanic.Workers
             try
             {
                 var cachedDB = Global.RedisMultiplexer.GetDatabase();
-                var value = cachedDB.StringGet("historical-leaderboard-projectid-" + projectID);
+                var value = cachedDB.StringGet("historical-leaderboard-projectid-" + projectID + cacheVersion);
                 if (!value.HasValue)
                     return null;
 
@@ -66,6 +66,7 @@ namespace PseudoBanic.Workers
                     {
                         UpdateCache(project.ID, GenerateData(project.ID));
                     }
+                    cacheVersion++;
                     Thread.Sleep(CACHE_UPDATE_RATE);
                 }
             });
