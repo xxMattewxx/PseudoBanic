@@ -42,7 +42,7 @@ namespace PseudoBanic.Workers
             try
             {
                 var cachedDB = Global.RedisMultiplexer.GetDatabase();
-                var value = cachedDB.StringGet("historical-leaderboard-projectid-" + projectID + cacheVersion);
+                var value = cachedDB.StringGet("historical-leaderboard-projectid-" + projectID + "-" + cacheVersion);
                 if (!value.HasValue)
                     return null;
 
