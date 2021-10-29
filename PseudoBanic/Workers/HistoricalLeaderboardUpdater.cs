@@ -28,19 +28,30 @@ namespace PseudoBanic.Workers
 
         static void UpdateCache(long projectID, string newValue)
         {
-            var cachedDB = Global.RedisMultiplexer.GetDatabase();
+            try
+            {
+                var cachedDB = Global.RedisMultiplexer.GetDatabase();
 
-            cachedDB.StringSet("historical-leaderboard-projectid-" + projectID, newValue, TimeSpan.MaxValue);
+                cachedDB.StringSet("historical-leaderboard-projectid-" + projectID, newValue, TimeSpan.MaxValue);
+            }
+            catch { }
         }
 
         public static string GetData(long projectID)
         {
-            var cachedDB = Global.RedisMultiplexer.GetDatabase();
-            var value = cachedDB.StringGet("historical-leaderboard-projectid-" + projectID);
-            if (!value.HasValue)
-                return null;
+            try
+            {
+                var cachedDB = Global.RedisMultiplexer.GetDatabase();
+                var value = cachedDB.StringGet("historical-leaderboard-projectid-" + projectID);
+                if (!value.HasValue)
+                    return null;
 
-            return value.ToString();
+                return value.ToString();
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public static void RunWorker()

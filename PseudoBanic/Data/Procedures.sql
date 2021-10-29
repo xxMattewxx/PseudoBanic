@@ -20,10 +20,10 @@ BEGIN
 						"Assignments"."TaskID" = "Tasks"."ID"
 					LIMIT 1
 			)
-		ORDER BY "Priority" DESC
 		LIMIT 1;
 
 	IF retrievedID > 0 THEN
+        PERFORM UpdateOrInsert(retrievedID, userID);
 		UPDATE "Tasks" SET "QuorumLeft" = "QuorumLeft" - 1 WHERE "ID" = retrievedID;
 		INSERT INTO "Assignments" ("TaskID", "UserID", "Deadline") VALUES (retrievedID, userID, NOW() + INTERVAL '2 HOURS');
 		RETURN retrievedID;
@@ -144,6 +144,7 @@ BEGIN
 
 		SELECT COUNT(*) INTO pendingResultsCount FROM "Assignments" WHERE "TaskID" = taskID AND "State" = 0;
 		IF pendingResultsCount = 0 THEN
+            PERFORM UpdateOrInsert(taskID, NULL);
 			UPDATE "Tasks" SET "QuorumLeft" = "QuorumLeft" + 1 WHERE "ID" = taskID;
 			RETURN 1;
 		END IF;
