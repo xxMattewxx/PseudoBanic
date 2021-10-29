@@ -18,8 +18,7 @@ namespace PseudoBanic.Handlers.Leaderboard.Historical
         {
             using var dbContext = new HistoricalLeaderboardDbContext();
             foreach(var aux in dbContext.HistoricalLeaderboard
-                .Where(x => x.MetadataID == projectID)
-                .OrderBy(z => z.ID))
+                .Where(x => x.MetadataID == projectID))
             {
                 writer.WriteLine("{0} {1} {2} {3} {4}", aux.UserID, aux.Points, aux.ValidatedPoints, aux.InvalidatedPoints, Utils.ConvertToUnixTimestamp(aux.SnapshotTime));
             }
