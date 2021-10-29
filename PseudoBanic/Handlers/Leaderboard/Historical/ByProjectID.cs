@@ -14,18 +14,6 @@ namespace PseudoBanic.Handlers.Leaderboard.Historical
 {
     class ByProjectID
     {
-        static void StreamData(StreamWriter writer, long projectID)
-        {
-            using var dbContext = new HistoricalLeaderboardDbContext();
-            
-            foreach(var aux in dbContext.HistoricalLeaderboard
-                .Where(x => x.MetadataID == projectID))
-            {
-                writer.WriteLine("{0} {1} {2} {3} {4}", aux.UserID, aux.Points, aux.ValidatedPoints, aux.InvalidatedPoints, Utils.ConvertToUnixTimestamp(aux.SnapshotTime));
-            }
-            writer.Flush();
-        }
-
         public static void ProcessContext(HttpListenerContext context, StreamWriter writer, StreamReader reader)
         {
             string jsonStr = reader.ReadToEnd();
@@ -38,7 +26,7 @@ namespace PseudoBanic.Handlers.Leaderboard.Historical
                 return;
             }
 
-            StreamData(writer, request.MetadataID.Value);
+            writer.Write(Workers.HistoricalLeaderboardHelper.GetData(request.MetadataID.Value));
         }
     }
 }
