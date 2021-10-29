@@ -10,31 +10,30 @@ namespace PseudoBanic.Workers
 {
     class HistoricalLeaderboardHelper
     {
+        static long LastID = 0;
         const int CACHE_UPDATE_RATE = 1000 * 30;
-        static int cacheVersion = 0;
-        static string GenerateData(long projectID)
+
+        static string UpdateData()
         {
+            var cachedDB = Global.RedisMultiplexer.GetDatabase();
             using var dbContext = new HistoricalLeaderboardDbContext();
+
             StringBuilder builder = new StringBuilder();
-            foreach (var aux in dbContext.HistoricalLeaderboard
-                .Where(x => x.MetadataID == projectID)
-                .OrderBy(z => z.ID))
+            var results = dbContext.HistoricalLeaderboard
+                .Where(x => x.ID > LastID)
+                .OrderBy(z => z.ID);
+
+            foreach (var aux in results)
             {
-                builder.Append(string.Format("{0} {1} {2} {3} {4}\n", aux.UserID, aux.Points, aux.ValidatedPoints, aux.InvalidatedPoints, Utils.ConvertToUnixTimestamp(aux.SnapshotTime)));
+                LastID = aux.ID;
+
+                cachedDB.ListRightPush(
+                    "historical-leaderboard-projectid-" + aux.MetadataID, 
+                    string.Format("{0} {1} {2} {3} {4}\n", aux.UserID, aux.Points, aux.ValidatedPoints, aux.InvalidatedPoints, Utils.ConvertToUnixTimestamp(aux.SnapshotTime))
+                );
             }
 
             return builder.ToString();
-        }
-
-        static void UpdateCache(long projectID, string newValue)
-        {
-            try
-            {
-                var cachedDB = Global.RedisMultiplexer.GetDatabase();
-
-                cachedDB.StringSetAsync("historical-leaderboard-projectid-" + projectID + "-" + (cacheVersion + 1), newValue, TimeSpan.FromMinutes(1)).Wait();
-            }
-            catch { }
         }
 
         public static string GetData(long projectID)
@@ -42,11 +41,11 @@ namespace PseudoBanic.Workers
             try
             {
                 var cachedDB = Global.RedisMultiplexer.GetDatabase();
-                var value = cachedDB.StringGetAsync("historical-leaderboard-projectid-" + projectID + "-" + cacheVersion).Result;
-                if (!value.HasValue)
+                var value = cachedDB.ListRangeAsync("historical-leaderboard-projectid-" + projectID).Result;
+                if (value == null)
                     return null;
 
-                return value.ToString();
+                return string.Join('\n', value);
             }
             catch
             {
@@ -58,15 +57,16 @@ namespace PseudoBanic.Workers
         {
             Thread thread = new Thread(() =>
             {
+                var cachedDB = Global.RedisMultiplexer.GetDatabase();
                 Console.WriteLine("[WORKER] Historical Leaderboard cache updater started.");
                 while (true)
                 {
                     List<TaskMeta> projects = TaskMeta.GetAll();
-                    foreach(var project in projects)
-                    {
-                        UpdateCache(project.ID, GenerateData(project.ID));
-                    }
-                    cacheVersion++;
+                    if (LastID == 0)
+                        foreach (var project in projects)
+                            cachedDB.KeyDelete("historical-leaderboard-projectid-" + project.ID);
+
+                    UpdateData();
                     Thread.Sleep(CACHE_UPDATE_RATE);
                 }
             });
