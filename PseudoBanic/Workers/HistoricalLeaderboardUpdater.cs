@@ -12,7 +12,8 @@ namespace PseudoBanic.Workers
     class HistoricalLeaderboardHelper
     {
         static long LastID = 0;
-        const int CACHE_UPDATE_RATE = 1000;
+        const int CACHE_UPDATE_COUNT = 2000;
+        const int CACHE_UPDATE_RATE = 1000 * 30;
         static Dictionary<long, List<string>> cache = new Dictionary<long, List<string>>();
         static object lockObj = new object();
 
@@ -26,20 +27,20 @@ namespace PseudoBanic.Workers
 
         static void UpdateData()
         {
-            lock (lockObj)
+
+            try
             {
-                try
+                using var dbContext = new HistoricalLeaderboardDbContext();
+
+                var results = dbContext.HistoricalLeaderboard
+                    .Where(x => x.ID > LastID)
+                    .OrderBy(z => z.ID)
+                    .Take(CACHE_UPDATE_COUNT)
+                    .ToList();
+
+                lock (lockObj)
                 {
-                    var cachedDB = Global.RedisMultiplexer.GetDatabase();
-                    using var dbContext = new HistoricalLeaderboardDbContext();
-
-                    var results = dbContext.HistoricalLeaderboard
-                        .Where(x => x.ID > LastID)
-                        .OrderBy(z => z.ID)
-                        .Take(1000)
-                        .ToList();
-
-                    for (int i = 0; i < Math.Min(1000, results.Count); i++)
+                    for (int i = 0; i < Math.Min(CACHE_UPDATE_COUNT, results.Count); i++)
                     {
                         var aux = results[i];
                         LastID = aux.ID;
@@ -47,8 +48,8 @@ namespace PseudoBanic.Workers
                         Append(aux.MetadataID, string.Format("{0} {1} {2} {3} {4}", aux.UserID, aux.Points, aux.ValidatedPoints, aux.InvalidatedPoints, Utils.ConvertToUnixTimestamp(aux.SnapshotTime)));
                     }
                 }
-                catch { }
             }
+            catch { }
         }
 
         public static string GetData(long projectID)
@@ -73,7 +74,6 @@ namespace PseudoBanic.Workers
         {
             Thread thread = new Thread(() =>
             {
-                var cachedDB = Global.RedisMultiplexer.GetDatabase();
                 Console.WriteLine("[WORKER] Historical Leaderboard cache updater started.");
                 while (true)
                 {
