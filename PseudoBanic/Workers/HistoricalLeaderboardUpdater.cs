@@ -12,8 +12,8 @@ namespace PseudoBanic.Workers
     class HistoricalLeaderboardHelper
     {
         static long LastID = 0;
-        const int CACHE_UPDATE_COUNT = 2000;
-        const int CACHE_UPDATE_RATE = 1000 * 30;
+        const int CACHE_UPDATE_COUNT = 200000;
+        const int CACHE_UPDATE_RATE = 1000 * 5;
         static Dictionary<long, List<string>> cache = new Dictionary<long, List<string>>();
         static object lockObj = new object();
 
